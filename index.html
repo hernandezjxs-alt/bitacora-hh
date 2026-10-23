@@ -6,11 +6,12 @@
 <meta name="theme-color" content="#0f172a">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css?v=__V__">
 </head><body>
 <div id="auth" hidden>
   <form id="authForm" class="card">
-    <h1>⏱️ Bitácora HH</h1>
+    <h1>Bitácora HH</h1>
     <p class="muted">Registro de horas y actividades</p>
     <div id="regFields" hidden>
       <input id="fName" placeholder="Nombre completo" autocomplete="name">
@@ -27,73 +28,70 @@
 </div>
 <div id="app" hidden>
   <header>
-    <b id="hello">👋</b>
-    <span class="sp"></span>
-    <button class="ico" id="themeBtn" title="Tema" aria-label="Tema">🌓</button>
-    <button class="ico" id="outBtn" title="Salir" aria-label="Salir">🚪</button>
+    <div class="hi"><small id="hiSub">Bitácora HH</small><b id="hello">Hola</b></div>
+    <button class="ico" id="themeBtn" title="Tema" aria-label="Tema">◐</button>
+    <button class="ico" id="outBtn" title="Salir" aria-label="Salir">⎋</button>
   </header>
   <main>
-    <div class="daynav">
-      <button class="ico" id="prev" aria-label="Día anterior">◀</button>
-      <input type="date" id="dayPick">
-      <button class="ico" id="next" aria-label="Día siguiente">▶</button>
-      <button class="btn" id="todayBtn">Hoy</button>
-    </div>
-    <section class="card totals">
-      <div><small>Imputable</small><b id="tImp">0,00 h</b></div>
-      <div><small>Internas</small><b id="tInt">0,00 h</b></div>
-      <div><small>Meta del día</small><b id="tGoal">8,00 h</b></div>
-      <div class="bar"><i id="bar"></i></div>
-    </section>
-    <section class="card" id="timerCard">
-      <h2>Cronómetro</h2>
-      <div id="timerIdle">
-        <select id="tProj"></select>
-        <input id="tTask" placeholder="¿Qué vas a hacer?" maxlength="300">
-        <button class="btn primary" id="tStart">▶ Iniciar</button>
+    <div class="tab on" id="tab-hoy">
+      <div class="daynav">
+        <button class="ico" id="prev" aria-label="Día anterior">‹</button>
+        <input type="date" id="dayPick">
+        <button class="ico" id="next" aria-label="Día siguiente">›</button>
+        <button class="chip" id="todayBtn">Hoy</button>
       </div>
-      <div id="timerRun" hidden>
-        <b id="tClock" class="clock">00:00:00</b>
-        <p id="tWhat" class="muted"></p>
-        <button class="btn danger" id="tStop">⏹ Detener y guardar</button>
-      </div>
-    </section>
-    <section class="card">
-      <h2>Entrada manual</h2>
-      <form id="mForm">
-        <select id="mProj" required></select>
-        <input id="mTask" placeholder="Tarea" maxlength="300" required>
-        <div class="row">
-          <input type="time" id="mStart" step="900" required>
-          <input type="time" id="mEnd" step="900" required>
+      <section class="hero">
+        <div><span class="big" id="tImp">0,00</span><span class="unit">h imputables</span></div>
+        <div class="bar"><i id="bar"></i></div>
+        <div class="meta"><span>Internas <b id="tInt">0,00 h</b></span><span>Meta <b id="tGoal">8,00 h</b></span></div>
+      </section>
+      <section class="panel" id="timerCard">
+        <div id="timerIdle" class="stack">
+          <div class="row"><select id="tProj"></select></div>
+          <div class="row"><input id="tTask" placeholder="¿Qué vas a hacer?" maxlength="300"><button class="btn primary" id="tStart" aria-label="Iniciar">▶</button></div>
         </div>
-        <div class="row">
-          <input id="mTicket" placeholder="Ticket (opcional)" maxlength="60">
-          <label class="chk"><input type="checkbox" id="mImp" checked> Imputable</label>
+        <div id="timerRun" class="stack" hidden>
+          <b id="tClock" class="clock">00:00:00</b>
+          <p id="tWhat" class="muted"></p>
+          <button class="btn danger" id="tStop">Detener y guardar</button>
         </div>
-        <button class="btn primary">Guardar</button>
-        <button type="button" class="btn" id="repeatBtn">Repetir la última</button>
-      </form>
-    </section>
-    <section class="card">
-      <div class="row"><h2>Línea de tiempo</h2><span class="sp"></span><button class="btn" id="dailyBtn">+ Daily</button></div>
+      </section>
+      <details class="panel">
+        <summary>Agregar entrada manual</summary>
+        <form id="mForm" class="stack">
+          <select id="mProj" required></select>
+          <input id="mTask" placeholder="Tarea" maxlength="300" required>
+          <div class="row"><input type="time" id="mStart" step="900" required><input type="time" id="mEnd" step="900" required></div>
+          <div class="row"><input id="mTicket" placeholder="Ticket (opcional)" maxlength="60"><label class="chk"><input type="checkbox" id="mImp" checked> Imputable</label></div>
+          <div class="row"><button class="btn primary grow">Guardar</button><button type="button" class="btn" id="repeatBtn">Repetir última</button></div>
+        </form>
+      </details>
+      <div class="row head"><h2>Línea de tiempo</h2><span class="sp"></span><button class="chip" id="dailyBtn">+ Daily</button></div>
       <ul id="list" class="list"></ul>
-    </section>
-    <section class="card">
+    </div>
+    <div class="tab" id="tab-proy">
       <h2>Proyectos</h2>
-      <form id="pForm" class="row">
-        <input id="pClient" placeholder="Cliente" maxlength="100">
-        <input id="pName" placeholder="Proyecto" maxlength="100" required>
-        <button class="btn">Agregar</button>
+      <form id="pForm" class="panel stack">
+        <input id="pClient" placeholder="Cliente (opcional)" maxlength="100">
+        <input id="pName" placeholder="Nombre del proyecto" maxlength="100" required>
+        <button class="btn primary">Agregar proyecto</button>
       </form>
-    </section>
-    <section class="card">
-      <h2>Importar semilla (CSV)</h2>
-      <input type="file" id="seedFile" accept=".csv">
-      <p id="seedMsg" class="muted"></p>
-    </section>
+    </div>
+    <div class="tab" id="tab-datos">
+      <h2>Datos</h2>
+      <section class="panel stack">
+        <b>Importar semilla (CSV)</b>
+        <input type="file" id="seedFile" accept=".csv">
+        <p id="seedMsg" class="muted"></p>
+      </section>
+    </div>
+    <footer>Elaborado por JH · Todos los derechos reservados · octubre 2026</footer>
   </main>
-  <footer>Elaborado por JH · Todos los derechos reservados · octubre 2026</footer>
+  <nav class="tabs">
+    <button class="on" data-tab="hoy"><i>◷</i>Hoy</button>
+    <button data-tab="proy"><i>▦</i>Proyectos</button>
+    <button data-tab="datos"><i>⇅</i>Datos</button>
+  </nav>
 </div>
 <div id="toast" role="status"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>

@@ -72,7 +72,7 @@
     ]);
     st.profile = r[0].data; st.settings = r[1].data; st.projects = r[2].data || []; st.clients = r[3].data || [];
     var n = (st.profile && (st.profile.full_name || st.profile.username)) || '';
-    $('hello').textContent = '👋 ¡Hola, ' + n.split(' ')[0] + '!' + (st.profile && st.profile.role === 'admin' ? ' · Admin' : '');
+    $('hello').textContent = 'Hola, ' + n.split(' ')[0]; $('hiSub').textContent = st.profile && st.profile.role === 'admin' ? 'Bitácora HH · Admin' : 'Bitácora HH';
     fillProjects();
   }
   function projLabel(p) { var c = st.clients.find(function (x) { return x.id === p.client_id; }); return (c ? c.name + ' · ' : '') + p.name; }
@@ -92,13 +92,13 @@
     var imp = 0, int = 0;
     st.entries.forEach(function (e) { if (e.imputable) imp += e.duration_minutes; else int += e.duration_minutes; });
     var goal = st.settings ? st.settings.max_imputable_day_minutes : 480;
-    $('tImp').textContent = fmtH(imp); $('tInt').textContent = fmtH(int); $('tGoal').textContent = fmtH(goal);
+    $('tImp').textContent = fmtH(imp).replace(' h',''); $('tInt').textContent = fmtH(int); $('tGoal').textContent = fmtH(goal);
     $('bar').style.width = Math.min(100, imp / goal * 100) + '%';
     $('list').innerHTML = st.entries.map(function (e) {
       var pn = e.projects ? e.projects.name : '';
       return '<li class="' + (e.imputable ? '' : 'int') + '"><span class="t">' + hm(e.start_time) + '–' + hm(e.end_time) + '</span>' +
         '<span class="x">' + esc(e.task) + '<br><small class="muted">' + esc(pn) + (e.ticket ? ' · ' + esc(e.ticket) : '') + ' · ' + fmtH(e.duration_minutes) + '</small></span>' +
-        '<button class="ico" data-del="' + e.id + '" aria-label="Eliminar" title="Eliminar">🗑️</button></li>';
+        '<button class="ico" data-del="' + e.id + '" aria-label="Eliminar" title="Eliminar">×</button></li>';
     }).join('') || '<li class="muted">Sin entradas este día</li>';
     var last = st.entries[st.entries.length - 1];
     if (last) { $('mStart').value = hm(last.end_time); }
@@ -219,6 +219,13 @@
       await loadBase(); loadDay();
     } catch (e) { $('seedMsg').textContent = 'Error: ' + (e.message || e) + ' (no se guardó nada)'; }
     ev.target.value = '';
+  };
+
+  document.querySelector('.tabs').onclick = function (e) {
+    var b = e.target.closest('button'); if (!b) return;
+    document.querySelectorAll('.tabs button').forEach(function (x) { x.classList.toggle('on', x === b); });
+    document.querySelectorAll('.tab').forEach(function (x) { x.classList.toggle('on', x.id === 'tab-' + b.dataset.tab); });
+    scrollTo(0, 0);
   };
 
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(function () {});
