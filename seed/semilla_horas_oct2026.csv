@@ -1,0 +1,86 @@
+﻿fecha;inicio;fin;duracion_min;cliente;proyecto;tarea;ticket;imputable;categoria
+2026-10-08;09:00;09:30;30;Masisa;Costeo Molduras MDF;Revisión y análisis de la documentación del proyecto Costeo;;SI;Proyecto
+2026-10-08;09:30;10:00;30;;General;Reunión daily;;NO;Daily
+2026-10-08;10:00;12:30;150;Masisa;Costeo Molduras MDF;Revisión y análisis de la documentación del proyecto Costeo;;SI;Proyecto
+2026-10-08;12:30;13:30;60;Masisa;Costeo Molduras MDF;Video de instrucciones del proyecto Costeo;;SI;Proyecto
+2026-10-08;13:30;13:45;15;Masisa;Costeo Molduras MDF;Comprensión del ambiente GCP de Masisa;;SI;Proyecto
+2026-10-08;15:00;18:30;210;Masisa;Costeo Molduras MDF;Comprensión del ambiente GCP de Masisa;;SI;Proyecto
+2026-10-09;09:00;09:30;30;Masisa;Costeo Molduras MDF;Revisión y análisis de la documentación del proyecto Costeo;;SI;Proyecto
+2026-10-09;09:30;10:00;30;;General;Reunión daily;;NO;Daily
+2026-10-09;10:00;12:30;150;Masisa;Costeo Molduras MDF;Revisión y análisis de la documentación del proyecto Costeo;;SI;Proyecto
+2026-10-09;12:30;13:30;60;Masisa;Costeo Molduras MDF;[REUNIÓN] Reunión con Diego para aclarar dudas del proyecto Costeo;;SI;Reunión
+2026-10-09;15:00;18:30;210;Masisa;Costeo Molduras MDF;Comprensión del ambiente GCP de Masisa;;SI;Proyecto
+2026-10-13;09:00;09:30;30;Masisa;Costeo Molduras MDF;Revisión de insumos y del Plan Forecast;;SI;Proyecto
+2026-10-13;09:30;10:00;30;;General;Reunión daily;;NO;Daily
+2026-10-13;10:00;13:45;225;Masisa;Costeo Molduras MDF;Revisión de insumos y del Plan Forecast;;SI;Proyecto
+2026-10-13;15:00;18:30;210;Masisa;Costeo Molduras MDF;Revisión de insumos y del Plan Forecast;;SI;Proyecto
+2026-10-14;09:00;09:30;30;Masisa;Costeo Molduras MDF;Modelado en BigQuery: costo real y tablas de seguimiento seg_mdf_*;;SI;Proyecto
+2026-10-14;09:30;10:00;30;;General;Reunión daily;;NO;Daily
+2026-10-14;10:00;13:15;195;Masisa;Costeo Molduras MDF;Modelado en BigQuery: costo real y tablas de seguimiento seg_mdf_*;;SI;Proyecto
+2026-10-14;13:15;13:45;30;Masisa;Costeo Molduras MDF;Vista para Looker, tablas externas de insumos y respaldos;;SI;Proyecto
+2026-10-14;15:00;15:30;30;Masisa;Costeo Molduras MDF;Vista para Looker, tablas externas de insumos y respaldos;;SI;Proyecto
+2026-10-14;15:30;18:30;180;Masisa;Costeo Molduras MDF;Dataform: repositorio mdf-proyeccion, datasets de prueba y simulación de mes;;SI;Proyecto
+2026-10-15;09:00;09:30;30;Masisa;Costeo Molduras MDF;Revisión de permisos de Dataform con cuenta de servicio;;SI;Proyecto
+2026-10-15;09:30;10:00;30;;General;Reunión daily;;NO;Daily
+2026-10-15;10:00;11:00;60;Masisa;Costeo Molduras MDF;Revisión de permisos de Dataform con cuenta de servicio;;SI;Proyecto
+2026-10-15;11:00;13:30;150;Masisa;Costeo Molduras MDF;Ejecución de las 15 acciones de Dataform en modo prueba;;SI;Proyecto
+2026-10-15;15:00;17:00;120;Masisa;Costeo Molduras MDF;Comparación de costos por planta contra el Excel del Plan Forecast;;SI;Proyecto
+2026-10-15;17:00;18:30;90;Masisa;Costeo Molduras MDF;Hallazgos del Excel del Plan Forecast;;SI;Proyecto
+2026-10-16;09:00;09:30;30;Masisa;Costeo Molduras MDF;Looker: proyecto LookML seguimiento_mdf y despliegue;;SI;Proyecto
+2026-10-16;09:30;10:00;30;;General;Reunión daily;;NO;Daily
+2026-10-16;10:00;12:15;135;Masisa;Costeo Molduras MDF;Looker: proyecto LookML seguimiento_mdf y despliegue;;SI;Proyecto
+2026-10-16;12:15;13:45;90;Masisa;Costeo Molduras MDF;Dashboard Seguimiento MDF;;SI;Proyecto
+2026-10-16;15:00;16:00;60;Masisa;Costeo Molduras MDF;Dashboard Seguimiento MDF;;SI;Proyecto
+2026-10-16;16:00;18:00;120;Masisa;Costeo Molduras MDF;Manual de Looker, diagrama de flujo y documentos de funcionamiento;;SI;Proyecto
+2026-10-16;18:00;18:30;30;Masisa;Costeo Molduras MDF;Opciones para simplificar la carga mensual de insumos;;SI;Proyecto
+2026-10-19;09:00;09:30;30;Masisa;Costeo Molduras MDF;Carga simplificada (Pegar_aqui) y análisis del pegado desde el Excel;;SI;Proyecto
+2026-10-19;09:30;10:00;30;;General;Reunión daily;;NO;Daily
+2026-10-19;10:00;11:00;60;Masisa;Costeo Molduras MDF;Carga simplificada (Pegar_aqui) y análisis del pegado desde el Excel;;SI;Proyecto
+2026-10-19;11:00;13:00;120;Masisa;Costeo Molduras MDF;Script en Python para leer el Excel de insumos y pruebas en Cloud Shell;;SI;Proyecto
+2026-10-19;13:00;13:30;30;Masisa;Costeo Molduras MDF;Cloud Run Job carga-mdf con cuenta de servicio;;SI;Proyecto
+2026-10-19;15:00;16:30;90;Masisa;Costeo Molduras MDF;Cloud Run Job carga-mdf con cuenta de servicio;;SI;Proyecto
+2026-10-19;16:30;17:30;60;Masisa;Costeo Molduras MDF;Botón en el Sheet (Apps Script) para la carga del mes;;SI;Proyecto
+2026-10-19;17:30;18:30;60;Masisa;Costeo Molduras MDF;Guía de Cloud Run y manual reutilizable;;SI;Proyecto
+2026-10-20;09:00;09:30;30;Masisa;Costeo Molduras MDF;Análisis del código de Dataform y documento de hallazgos;;SI;Proyecto
+2026-10-20;09:30;10:00;30;;General;Reunión daily;;NO;Daily
+2026-10-20;10:00;12:30;150;Masisa;Costeo Molduras MDF;Análisis del código de Dataform y documento de hallazgos;;SI;Proyecto
+2026-10-20;12:30;13:30;60;Masisa;Costeo Molduras MDF;Revisión del histórico y de la carga mensual;;SI;Proyecto
+2026-10-20;13:30;13:45;15;Masisa;Costeo Molduras MDF;Botón de Dataform en el Sheet y pruebas en modo TEST;;SI;Proyecto
+2026-10-20;15:00;17:30;150;Masisa;Costeo Molduras MDF;Botón de Dataform en el Sheet y pruebas en modo TEST;;SI;Proyecto
+2026-10-20;17:30;18:00;30;Masisa;Costeo Molduras MDF;Ajuste de colores y formatos del dashboard;;SI;Proyecto
+2026-10-20;18:00;18:30;30;Masisa;Costeo Molduras MDF;Solicitud de permiso para el agente de Dataform;;SI;Proyecto
+2026-10-21;09:00;09:30;30;Masisa;Costeo Molduras MDF;Evaluación del proceso completo solo con cuenta de servicio;;SI;Proyecto
+2026-10-21;09:30;10:00;30;;General;Reunión daily;;NO;Daily
+2026-10-21;10:00;11:45;105;Masisa;Costeo Molduras MDF;Evaluación del proceso completo solo con cuenta de servicio;;SI;Proyecto
+2026-10-21;11:45;12:45;60;Masisa;CxP Venezuela;Análisis inicial del proceso actual de CxP Venezuela;;SI;Proyecto
+2026-10-21;12:45;13:45;60;Masisa;CxP Venezuela;Ingeniería inversa del libro CUPA RSG SEM 38;;SI;Proyecto
+2026-10-21;15:00;15:30;30;Masisa;CxP Venezuela;Repositorio en GitHub y lectura de la documentación del proceso;;SI;Proyecto
+2026-10-21;15:30;16:15;45;Masisa;CxP Venezuela;Análisis de los demás insumos del consolidado;;SI;Proyecto
+2026-10-21;16:15;17:30;75;Masisa;CxP Venezuela;BigQuery: dataset CxP_vzla_test, vistas y tablas;;SI;Proyecto
+2026-10-21;17:30;17:45;15;Masisa;CxP Venezuela;Hoja de clasificación manual de proveedores;;SI;Proyecto
+2026-10-21;17:45;18:15;30;Masisa;CxP Venezuela;Validación contra el cuadro SEM 38;;SI;Proyecto
+2026-10-21;18:15;18:30;15;Masisa;CxP Venezuela;Pendientes con Masisa y borrador de mensaje;;SI;Proyecto
+2026-10-22;09:00;09:30;30;Masisa;Costeo Molduras MDF;Ejecución del cálculo de Dataform con cuenta de servicio;;SI;Proyecto
+2026-10-22;09:30;10:00;30;;General;Reunión daily;;NO;Daily
+2026-10-22;10:00;11:00;60;Masisa;Costeo Molduras MDF;Respuestas de Felipe y comparación con el BW MDF;;SI;Proyecto
+2026-10-22;11:00;11:30;30;Masisa;Costeo Molduras MDF;Correos a Felipe con el avance de la Etapa 1;;SI;Proyecto
+2026-10-22;11:30;12:15;45;Masisa;Costeo Molduras MDF;Documentos de la Etapa 1: resumen ejecutivo, guía, checklist y siguientes etapas;;SI;Proyecto
+2026-10-22;12:15;12:30;15;Masisa;Costeo Molduras MDF;Actualización de la bitácora y de los pendientes;;SI;Proyecto
+2026-10-22;12:30;13:15;45;Masisa;CxP Venezuela;Lectura del repositorio de CP y reglas del consolidado;;SI;Proyecto
+2026-10-22;13:15;13:30;15;Masisa;CxP Venezuela;Conciliación de las FXR contra el balance de SAP (glt0);;SI;Proyecto
+2026-10-22;15:00;15:45;45;Masisa;CxP Venezuela;Conciliación de las FXR contra el balance de SAP (glt0);;SI;Proyecto
+2026-10-22;15:45;16:15;30;Masisa;CxP Venezuela;Prueba de independencia de FBL1N_VE;;SI;Proyecto
+2026-10-22;16:15;17:00;45;Masisa;CxP Venezuela;Recarga de FBL1N_VE y respuestas de Andrés y Alba;;SI;Proyecto
+2026-10-22;17:00;17:30;30;Masisa;CxP Venezuela;Provisión automática (vw_cxp_provision);;SI;Proyecto
+2026-10-22;17:30;18:30;60;Masisa;CxP Venezuela;Dashboard en Looker Studio y correo de seguimiento;;SI;Proyecto
+2026-10-23;09:00;09:30;30;Masisa;Costeo Molduras MDF;Elaboración del informe y documentación de diagramas para el informe de avance;;SI;Proyecto
+2026-10-23;09:30;10:00;30;;General;Reunión daily;;NO;Daily
+2026-10-23;10:00;10:15;15;Masisa;Costeo Molduras MDF;Elaboración del informe y documentación de diagramas para el informe de avance;;SI;Proyecto
+2026-10-23;10:15;10:45;30;Masisa;Costeo Molduras MDF;Explicación de la Etapa 0 y propuesta para la tasa de cambio;;SI;Proyecto
+2026-10-23;10:45;11:00;15;Masisa;Costeo Molduras MDF;Revisión de la assertion e y de la columna E;;SI;Proyecto
+2026-10-23;11:00;11:15;15;Masisa;Costeo Molduras MDF;Correo de recordatorio a Felipe;;SI;Proyecto
+2026-10-23;11:15;11:30;15;Masisa;Costeo Molduras MDF;Repositorio en GitHub (estructura inicial y diagramas) y orden de carpetas;;SI;Proyecto
+2026-10-23;11:30;12:15;45;Masisa;Costeo Molduras MDF;[REUNIÓN] Reunión de avance con Masisa;;SI;Reunión
+2026-10-23;12:15;12:45;30;Masisa;Costeo Molduras MDF;Repositorio en GitHub (estructura inicial y diagramas) y orden de carpetas;;SI;Proyecto
+2026-10-23;12:45;13:30;45;;General;Actualización de las horas trabajadas en el TMS;;NO;Administrativo
+2026-10-23;15:00;18:30;210;Masisa;CxP Venezuela;Dashboard en Data Studio del consolidado de deuda semanal;;SI;Proyecto
