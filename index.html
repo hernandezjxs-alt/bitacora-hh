@@ -19,18 +19,25 @@
     </div>
     <input id="fEmail" type="email" placeholder="Correo" autocomplete="email" required>
     <input id="fPass" type="password" placeholder="Contraseña" autocomplete="current-password" minlength="6" required>
-    <label id="regConsent" class="chk" hidden><input type="checkbox" id="fConsent"> Acepto el uso de mis datos para llevar mi registro de horas</label>
+    <label id="regConsent" class="chk" hidden><input type="checkbox" id="fConsent"><span>Acepto los <button type="button" class="link in" data-legal="terms">Términos</button> y la <button type="button" class="link in" data-legal="privacy">Privacidad</button>, y que se guarden mis datos.</span></label>
     <button class="btn primary" id="authBtn">Ingresar</button>
     <button type="button" class="link" id="toggleMode">Crear cuenta</button>
     <button type="button" class="link" id="forgot">Olvidé mi contraseña</button>
-    <p id="authMsg" class="msg"></p>
+    <p id="authMsg" class="msg" role="status"></p>
+    <div class="auth-extra"><button type="button" class="ico app-install" title="Instalar la app" aria-label="Instalar la app">⤓</button><button type="button" class="ico app-share" title="Compartir la app" aria-label="Compartir la app">⇪</button><button type="button" class="ico contact-open" title="Contacto" aria-label="Contacto">✉</button></div>
   </form>
 </div>
 <div id="app" hidden>
   <header>
     <div class="hi"><small id="hiSub">Bitácora HH</small><b id="hello">Hola</b></div>
+    <button class="ico app-install" title="Instalar la app" aria-label="Instalar la app">⤓</button>
+    <button class="ico app-share" title="Compartir la app" aria-label="Compartir la app">⇪</button>
+    <button class="ico" id="statsBtn" title="Estadísticas y exportar" aria-label="Estadísticas">▤</button>
+    <button class="ico" id="usersBtn" title="Usuarios" aria-label="Usuarios" hidden>☺</button>
+    <button class="ico" id="inboxBtn" title="Mensajes" aria-label="Mensajes" hidden>✉<span id="inboxDot" class="dot" hidden></span></button>
+    <button class="ico contact-open" title="Contacto" aria-label="Contacto">?</button>
     <button class="ico" id="themeBtn" title="Tema" aria-label="Tema">◐</button>
-    <button class="ico" id="outBtn" title="Salir" aria-label="Salir">⎋</button>
+    <button class="ico" id="outBtn" title="Salir" aria-label="Salir">⏻</button>
   </header>
   <main>
     <div class="tab on" id="tab-hoy">
@@ -85,7 +92,7 @@
         <p id="seedMsg" class="muted"></p>
       </section>
     </div>
-    <footer>Elaborado por JH · Todos los derechos reservados · octubre 2026</footer>
+    <footer>Registro de horas y actividades<br>Elaborado por <b>JH</b> · Todos los derechos reservados · octubre 2026<br><button class="link in" data-legal="terms">Términos</button> · <button class="link in" data-legal="privacy">Privacidad</button> · <button class="link in contact-open">Contacto</button></footer>
   </main>
   <nav class="tabs">
     <button class="on" data-tab="hoy"><i>◷</i>Hoy</button>
@@ -93,6 +100,13 @@
     <button data-tab="datos"><i>⇅</i>Datos</button>
   </nav>
 </div>
+<div id="legalM" class="modal" hidden><div class="mc"><h2 id="lgT"></h2><div id="lgB" class="legal"></div><button class="btn primary" id="lgX">Entendido</button></div></div>
+<div id="resetM" class="modal" hidden><form id="resetF" class="mc"><h2>Nueva contraseña</h2><input id="rsPass" type="password" minlength="6" autocomplete="new-password" placeholder="Nueva contraseña" required><p id="rsMsg" class="msg"></p><button class="btn primary">Guardar</button></form></div>
+<div id="contactM" class="modal" hidden><form id="contactF" class="mc"><h2>Contacto</h2><p class="muted">Déjame tus datos y tu mensaje; te responderé lo antes posible.</p><input id="ctName" placeholder="Nombre" maxlength="100" minlength="2" required><input id="ctEmail" type="email" placeholder="Correo" maxlength="160" required><textarea id="ctMsg" rows="4" maxlength="2000" minlength="5" placeholder="Mensaje" required></textarea><input id="ctHp" tabindex="-1" autocomplete="off" aria-hidden="true" class="hp"><p id="ctSt" class="msg"></p><div class="row"><button type="button" class="btn grow" data-close="contactM">Cerrar</button><button class="btn primary grow">Enviar</button></div></form></div>
+<div id="confirmM" class="modal" hidden><div class="mc"><h2 id="cfT"></h2><div id="cfB"></div><div class="row"><button class="btn grow" id="cfNo">Cancelar</button><button class="btn primary grow" id="cfOk">Aceptar</button></div></div></div>
+<div id="statsM" class="modal" hidden><div class="mc"><h2>Tus horas</h2><div id="statsB" class="stack"></div><div class="row"><button class="btn grow" id="stCsv">Mes (CSV)</button><button class="btn primary grow" data-close="statsM">Cerrar</button></div></div></div>
+<div id="usersM" class="modal" hidden><div class="mc"><h2>Usuarios</h2><div id="usersB" class="stack"></div><button class="btn" data-close="usersM">Cerrar</button></div></div>
+<div id="inboxM" class="modal" hidden><div class="mc"><h2>Mensajes recibidos</h2><div id="inboxB" class="stack"></div><button class="btn" data-close="inboxM">Cerrar</button></div></div>
 <div id="toast" role="status"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="config.js?v=__V__"></script>
