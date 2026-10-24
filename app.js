@@ -214,20 +214,27 @@
     $('timerIdle').hidden = !!st.timer; $('timerRun').hidden = !st.timer;
     if (!st.timer) return;
     $('tWhat').textContent = st.timer.task;
+    var s0 = new Date(st.timer.started_at); $('tFrom2').value = pad(s0.getHours()) + ':' + pad(s0.getMinutes()); st.toEdited = false;
     var f = function () { var s = Math.max(0, Math.floor((Date.now() - new Date(st.timer.started_at)) / 1000)); $('tClock').textContent = pad(Math.floor(s / 3600)) + ':' + pad(Math.floor(s / 60) % 60) + ':' + pad(s % 60); };
-    f(); st.tick = setInterval(f, 1000);
+    f(); st.tick = setInterval(function () { f(); if (!st.toEdited && document.activeElement !== $('tTo')) { var n = new Date(); $('tTo').value = pad(n.getHours()) + ':' + pad(n.getMinutes()); } }, 1000);
+    var n0 = new Date(); $('tTo').value = pad(n0.getHours()) + ':' + pad(n0.getMinutes()); $('tTo').oninput = function () { st.toEdited = true; };
   }
   $('tStart').onclick = async function () {
     var task = $('tTask').value.trim();
     if (!task) return toast('Escribe qué vas a hacer');
-    var r = await sb.from('active_timer').insert({ project_id: $('tProj').value, task: task }).select().single();
+    var row = { project_id: $('tProj').value, task: task };
+    if ($('tFrom').value) { var p = $('tFrom').value.split(':'), sd = new Date(); sd.setHours(+p[0], +p[1], 0, 0); row.started_at = sd.toISOString(); }
+    var r = await sb.from('active_timer').insert(row).select().single();
     if (r.error) return err(r.error);
     $('tTask').value = ''; st.timer = r.data; renderTimer();
   };
+  function nowHM() { var n = new Date(); return pad(n.getHours()) + ':' + pad(n.getMinutes()); }
+  $('tFrom').value = nowHM();
   function r15(m) { return Math.round(m / 15) * 15; }
   $('tStop').onclick = async function () {
     var t = st.timer, a = new Date(t.started_at), b = new Date();
-    var sm = r15(a.getHours() * 60 + a.getMinutes()), em = r15(b.getHours() * 60 + b.getMinutes());
+    var pm = function (v, d) { if (!v) return d; var x = v.split(':'); return +x[0] * 60 + +x[1]; };
+    var sm = r15(pm($('tFrom2').value, a.getHours() * 60 + a.getMinutes())), em = r15(pm($('tTo').value, b.getHours() * 60 + b.getMinutes()));
     if (em <= sm) em = sm + 15;
     var f = function (m) { return pad(Math.floor(m / 60)) + ':' + pad(m % 60); };
     var d = a.getFullYear() + '-' + pad(a.getMonth() + 1) + '-' + pad(a.getDate());

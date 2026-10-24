@@ -76,11 +76,13 @@
           <h2>Cronómetro</h2>
           <div id="timerIdle" class="stack">
             <select id="tProj"></select>
-            <div class="row"><input id="tTask" placeholder="¿Qué vas a hacer?" maxlength="300"><button class="btn primary" id="tStart" aria-label="Iniciar">▶</button></div>
+            <textarea id="tTask" rows="4" placeholder="¿Qué vas a hacer? Describe la tarea" maxlength="300"></textarea>
+            <div class="row"><label class="lbl">Inicio<input type="time" id="tFrom" step="900"></label><button class="btn primary fit" id="tStart">▶ Iniciar</button></div>
           </div>
           <div id="timerRun" class="stack" hidden>
             <b id="tClock" class="clock">00:00:00</b>
             <p id="tWhat" class="muted"></p>
+            <div class="row"><label class="lbl">Inicio<input type="time" id="tFrom2" step="900"></label><label class="lbl">Fin<input type="time" id="tTo" step="900"></label></div>
             <button class="btn danger fit" id="tStop">Detener y guardar</button>
           </div>
           <p class="muted hint">Al detener, el tiempo se redondea a bloques de 15 minutos y se guarda en el día actual.</p>
@@ -89,7 +91,7 @@
           <summary>Agregar entrada manual</summary>
           <form id="mForm" class="stack">
             <select id="mProj" required></select>
-            <input id="mTask" placeholder="Tarea" maxlength="300" required>
+            <textarea id="mTask" rows="4" placeholder="Describe la tarea" maxlength="300" required></textarea>
             <div class="row"><input type="time" id="mStart" step="900" required><input type="time" id="mEnd" step="900" required></div>
             <div class="row"><input id="mTicket" placeholder="Ticket (opcional)" maxlength="60"><label class="chk"><input type="checkbox" id="mImp" checked> Imputable</label></div>
             <div class="row"><button class="btn primary fit">Guardar</button><button type="button" class="btn fit" id="repeatBtn">Repetir última</button></div>

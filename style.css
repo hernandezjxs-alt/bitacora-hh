@@ -190,3 +190,8 @@ input[type=file]{max-width:100%}
 .tbl tr.int td{color:var(--mut)}
 #logMode .chip.on{background:var(--ac);color:#fff;border-color:var(--ac)}
 [data-theme=dark] #logMode .chip.on{color:#0b0d12}
+
+textarea{min-height:110px;line-height:1.45}
+#tTask,#mTask{min-height:120px}
+.lbl{display:grid;gap:4px;font-size:.78rem;color:var(--mut);flex:1 1 120px;min-width:0}
+.lbl input{font-size:16px}
