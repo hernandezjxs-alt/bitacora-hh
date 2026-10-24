@@ -494,7 +494,16 @@
   $('askChips').onclick = function (e) { var b = e.target.closest('.chip'); if (b) ask(b.textContent); };
 
   // ===== Volver arriba =====
-  function goTop() { document.querySelectorAll('.tbl-wrap').forEach(function (t) { t.scrollTop = 0; }); window.scrollTo({ top: 0, behavior: 'smooth' }); setTimeout(function () { window.scrollTo(0, 0); document.documentElement.scrollTop = 0; document.body.scrollTop = 0; }, 450); }
+  function goTop() {
+    document.querySelectorAll('.tbl-wrap,.list').forEach(function (t) { t.scrollTop = 0; });
+    var se = document.scrollingElement || document.documentElement, from = se.scrollTop, t0 = performance.now(), dur = 350;
+    function step(t) {
+      var k = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - k, 3);
+      se.scrollTop = from * (1 - e); window.scrollTo(0, from * (1 - e));
+      if (k < 1) requestAnimationFrame(step); else { se.scrollTop = 0; document.body.scrollTop = 0; window.scrollTo(0, 0); }
+    }
+    requestAnimationFrame(step);
+  }
   $('toTop').onclick = goTop; $('footTop').onclick = goTop;
   window.addEventListener('scroll', function () { $('toTop').hidden = !(st.user && window.scrollY > 300); }, { passive: true });
 

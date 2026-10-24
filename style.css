@@ -176,3 +176,10 @@ footer{margin-top:auto}
 .panel{min-width:0}.panel p,.panel .muted{overflow-wrap:anywhere}
 input[type=file]{max-width:100%}
 #tab-datos>.wide{grid-column:1/-1}
+
+/* gráfica circular grande */
+.donut{grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));align-items:center;justify-items:center;gap:18px}
+.donut svg{width:min(100%,280px);height:auto}
+.donut .leg{align-self:center}
+/* bitácora con su propio scroll para que la página no sea interminable */
+#list{max-height:min(70vh,760px);overflow-y:auto;padding-right:4px;overscroll-behavior:contain;align-content:start}
