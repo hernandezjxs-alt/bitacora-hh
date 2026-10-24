@@ -59,6 +59,7 @@
     $('auth').hidden = true; $('app').hidden = false; $('askFab').hidden = false;
     await loadBase();
     $('dayPick').value = st.day;
+    if (window.innerWidth >= 900) $('manualD').open = true;
     await loadDay();
     await loadTimer();
   }
@@ -79,6 +80,8 @@
   function fillProjects() {
     var h = st.projects.map(function (p) { return '<option value="' + p.id + '">' + esc(projLabel(p)) + '</option>'; }).join('');
     $('tProj').innerHTML = h; $('mProj').innerHTML = h;
+    $('projCount').textContent = '(' + st.projects.length + ')';
+    $('projList').innerHTML = st.projects.map(function (p) { return '<span class="pchip">' + esc(projLabel(p)) + '</span>'; }).join('');
   }
 
   // ===== Día =====
@@ -94,6 +97,9 @@
     var goal = st.settings ? st.settings.max_imputable_day_minutes : 480;
     $('tImp').textContent = fmtH(imp).replace(' h',''); $('tInt').textContent = fmtH(int); $('tGoal').textContent = fmtH(goal);
     $('bar').style.width = Math.min(100, imp / goal * 100) + '%';
+    $('dN').textContent = st.entries.length;
+    $('dLeft').textContent = imp >= goal ? 'Cumplida' : fmtH(goal - imp);
+    var le = st.entries[st.entries.length - 1]; $('dLast').textContent = le ? hm(le.end_time) : '—';
     $('list').innerHTML = st.entries.map(function (e) {
       var pn = e.projects ? e.projects.name : '';
       return '<li class="' + (e.imputable ? '' : 'int') + '"><span class="t">' + hm(e.start_time) + '–' + hm(e.end_time) + '</span>' +
