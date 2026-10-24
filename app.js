@@ -59,9 +59,9 @@
     $('auth').hidden = true; $('app').hidden = false; $('askFab').hidden = false;
     await loadBase();
     $('dayPick').value = st.day;
-    if (window.innerWidth >= 900) $('manualD').open = true;
+    $('manualD').open = true;
     await loadDay();
-    await loadTimer();
+
   }
 
   async function loadBase() {

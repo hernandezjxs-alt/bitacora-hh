@@ -72,7 +72,7 @@
           </div>
           <div class="mini"><div><small>Entradas</small><b id="dN">0</b></div><div><small>Falta para la meta</small><b id="dLeft">—</b></div><div><small>Último registro</small><b id="dLast">—</b></div></div>
         </section>
-        <section class="panel" id="timerCard">
+        <section class="panel" id="timerCard" hidden>
           <h2>Cronómetro</h2>
           <div id="timerIdle" class="stack">
             <select id="tProj"></select>
@@ -87,8 +87,8 @@
           </div>
           <p class="muted hint">Al detener, el tiempo se redondea a bloques de 15 minutos y se guarda en el día actual.</p>
         </section>
-        <details class="panel" id="manualD">
-          <summary>Agregar entrada manual</summary>
+        <details class="panel" id="manualD" open>
+          <summary>Agregar entrada</summary>
           <form id="mForm" class="stack">
             <select id="mProj" required></select>
             <textarea id="mTask" rows="4" placeholder="Describe la tarea" maxlength="300" required></textarea>
