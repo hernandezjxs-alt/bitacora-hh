@@ -115,10 +115,11 @@
     </div>
     <div class="tab" id="tab-inf">
       <h2>Informes</h2>
-      <div class="seg" id="pMode"><button data-m="day">Día</button><button data-m="week">Semana</button><button class="on" data-m="month">Mes</button></div>
-      <div class="daynav"><button class="ico" id="iPrev" aria-label="Anterior">‹</button><b id="iLabel" class="mlabel"></b><button class="ico" id="iNext" aria-label="Siguiente">›</button><button class="chip" id="iNow">Hoy</button></div>
-      <div class="row"><select id="iFile" aria-label="Tipo de archivo"></select><select id="iSheet" aria-label="Hoja"></select></div>
-      <div class="row"><select id="iProj" aria-label="Proyecto"></select></div>
+      <div class="toolbar">
+        <div class="seg" id="pMode"><button data-m="day">Día</button><button data-m="week">Semana</button><button class="on" data-m="month">Mes</button></div>
+        <div class="daynav"><button class="ico" id="iPrev" aria-label="Anterior">‹</button><b id="iLabel" class="mlabel"></b><button class="ico" id="iNext" aria-label="Siguiente">›</button><button class="chip" id="iNow">Hoy</button></div>
+      </div>
+      <div class="selrow"><select id="iFile" aria-label="Tipo de archivo"></select><select id="iSheet" aria-label="Hoja"></select><select id="iProj" aria-label="Proyecto"></select></div>
       <div class="tbl-wrap"><table id="iTable" class="tbl"></table></div>
       <p id="iInfo" class="muted"></p>
       <div class="row"><button class="btn primary grow" id="iXls">Exportar Excel</button><button class="btn grow" id="iMail">Enviar por correo</button></div>
@@ -132,7 +133,7 @@
         <p id="seedMsg" class="muted"></p>
       </section>
     </div>
-    <footer>Registro de horas y actividades<br>Elaborado por <b>JH</b> · Todos los derechos reservados · octubre 2026<br><button class="link in" data-legal="terms">Términos</button> · <button class="link in" data-legal="privacy">Privacidad</button> · <button class="link in contact-open">Contacto</button></footer>
+    <footer><button class="link in" id="footTop">↑ Volver arriba</button><br>Registro de horas y actividades<br>Elaborado por <b>JH</b> · Todos los derechos reservados · octubre 2026<br><button class="link in" data-legal="terms">Términos</button> · <button class="link in" data-legal="privacy">Privacidad</button> · <button class="link in contact-open">Contacto</button></footer>
   </main>
   
 </div>
@@ -149,6 +150,7 @@
 <div id="askLog" class="log"></div>
 <div id="askChips" class="chips"></div>
 <form id="askF" class="row"><input id="askQ" placeholder="Escribe tu pregunta…" maxlength="1000" autocomplete="off"><button class="btn primary" aria-label="Enviar">➤</button></form></div></div>
+<button id="toTop" class="totop" aria-label="Volver arriba" title="Volver arriba" hidden><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5"/><path d="m5 12 7-7 7 7"/></svg></button>
 <div id="toast" role="status"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.min.js"></script>

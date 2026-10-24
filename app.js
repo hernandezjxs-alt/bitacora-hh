@@ -485,6 +485,11 @@
   $('askF').onsubmit = function (e) { e.preventDefault(); ask($('askQ').value.trim()); };
   $('askChips').onclick = function (e) { var b = e.target.closest('.chip'); if (b) ask(b.textContent); };
 
+  // ===== Volver arriba =====
+  function goTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
+  $('toTop').onclick = goTop; $('footTop').onclick = goTop;
+  window.addEventListener('scroll', function () { $('toTop').hidden = !(st.user && window.scrollY > 300); }, { passive: true });
+
   document.querySelector('.tabs').onclick = function (e) {
     var b = e.target.closest('button'); if (!b) return;
     document.querySelectorAll('.tabs button').forEach(function (x) { x.classList.toggle('on', x === b); });
