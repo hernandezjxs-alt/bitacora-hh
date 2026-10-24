@@ -108,10 +108,15 @@
       <div class="kpis" id="kpis"></div>
       <section class="panel"><h2>Horas por día</h2><div id="chDays"></div></section>
       <section class="panel"><h2>Por proyecto</h2><div id="chProj"></div></section>
-      <section class="panel"><h2>Por semana</h2><div id="chWeeks"></div></section>
+      <div class="pcol">
+        <section class="panel"><h2>Por semana</h2><div id="chWeeks"></div></section>
+        <section class="panel"><h2>Por día de la semana</h2><div id="chDow"></div></section>
+      </div>
+      <section class="panel"><h2>Tareas con más horas</h2><div id="chTop"></div></section>
+      <section class="panel"><h2>Por categoría</h2><div id="chCat"></div></section>
       <section class="panel stack"><h2>Descargar Excel del mes</h2>
-        <button class="btn primary fit" id="xPersonal">Excel personal (para llenar y revisar)</button>
-        <button class="btn fit" id="xBoss">Excel para el jefe (Formato HH)</button>
+        <div class="row wrap"><button class="btn primary fit" id="xPersonal">Excel personal (para llenar y revisar)</button>
+        <button class="btn fit" id="xBoss">Excel para el jefe (Formato HH)</button></div>
         <p class="muted">El del jefe lleva solo horas imputables, con las hojas «resumen» y «detalle».</p>
       </section>
     </div>
@@ -124,13 +129,17 @@
       <div class="selrow"><select id="iFile" aria-label="Tipo de archivo"></select><select id="iSheet" aria-label="Hoja"></select><select id="iProj" aria-label="Proyecto"></select></div>
       <div class="tbl-wrap"><table id="iTable" class="tbl"></table></div>
       <p id="iInfo" class="muted"></p>
-      <div class="row"><button class="btn primary grow" id="iXls">Exportar Excel</button><button class="btn grow" id="iMail">Enviar por correo</button></div>
-      <button class="btn fit" id="iAll">Descargar el archivo completo (todas las hojas)</button>
+      <div class="row wrap"><button class="btn primary fit" id="iXls">Exportar Excel</button><button class="btn fit" id="iMail">Enviar por correo</button><button class="btn fit" id="iAll">Archivo completo (todas las hojas)</button></div>
     </div>
     <div class="tab" id="tab-datos">
       <h2>Datos</h2>
-      <section class="panel stack">
-        <b>Importar semilla (CSV)</b>
+      <section class="panel stack wide"><h2>Resumen de tus datos</h2><div class="kpis" id="dKpis"></div></section>
+      <section class="panel stack"><h2>Respaldo</h2>
+        <p class="muted">Descarga todo tu registro (todas las fechas) para guardarlo o abrirlo en Excel.</p>
+        <div class="row wrap"><button class="btn primary fit" id="bkCsv">Todo en CSV</button><button class="btn fit" id="bkJson">Respaldo JSON</button><button class="btn fit" id="bkXls">Todo en Excel</button></div>
+      </section>
+      <section class="panel stack"><h2>Importar semilla (CSV)</h2>
+        <p class="muted">Carga un CSV con columnas fecha;inicio;fin;duracion_min;cliente;proyecto;tarea;ticket;imputable;categoria. No reemplaza lo existente: agrega.</p>
         <input type="file" id="seedFile" accept=".csv">
         <p id="seedMsg" class="muted"></p>
       </section>

@@ -157,3 +157,22 @@ header,main,.tabs{max-width:1500px;margin-left:auto;margin-right:auto;box-sizing
 .totop{position:fixed;right:16px;bottom:76px;width:44px;height:44px;border-radius:50%;border:1px solid var(--bd);background:var(--card);color:var(--fg);display:grid;place-items:center;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.25);z-index:14}
 .fab{right:16px;bottom:16px;width:50px;height:50px}
 .big{font-size:clamp(2.6rem,6vw,3.6rem)}
+
+/* pie siempre abajo y piezas nuevas */
+#app:not([hidden]){min-height:100vh;display:flex;flex-direction:column}
+#app>header,#app>.tabs{width:100%}
+main{flex:1 0 auto;width:100%}
+footer{margin-top:auto}
+.row.wrap{flex-wrap:wrap}
+.k7{--kc:var(--i6)}.k8{--kc:var(--i3)}.k9{--kc:var(--i5)}.k10{--kc:var(--i2)}.k11{--kc:var(--i4)}.k12{--kc:var(--i7)}
+.top{margin:0;padding:0;list-style:none;display:grid;gap:8px;counter-reset:t}
+.top li{display:flex;gap:10px;align-items:baseline;counter-increment:t}
+.top li::before{content:counter(t);flex:none;width:22px;height:22px;border-radius:50%;background:var(--acs);color:var(--ac);display:grid;place-items:center;font-size:.75rem;font-weight:600}
+.top span{flex:1;min-width:0;overflow-wrap:anywhere}.top b{white-space:nowrap}
+#tab-panel.on{align-items:stretch}
+#tab-panel>.panel:last-child{align-self:start}
+
+.pcol{display:grid;gap:14px;align-content:start}
+.panel{min-width:0}.panel p,.panel .muted{overflow-wrap:anywhere}
+input[type=file]{max-width:100%}
+#tab-datos>.wide{grid-column:1/-1}

@@ -188,6 +188,44 @@
     return wb;
   }
 
-  var api = { FILES: FILES, table: table, workbook: workbook, stats: stats, chartDays: chartDays, chartDonut: chartDonut, chartWeeks: chartWeeks, bossWorkbook: bossWorkbook, personalWorkbook: personalWorkbook, fh: fh };
+  /* ===== KPIs y gráficas extra del Panel ===== */
+  function extra(rows, goalDay, todayIso, ym) {
+    var S = stats(rows, goalDay), p = ym.split('-'), y = +p[0], m = +p[1] - 1, last = new Date(y, m + 1, 0).getDate(), wd = 0, rem = 0;
+    for (var d = 1; d <= last; d++) { var dt = new Date(y, m, d), w = dt.getDay(), iso = y + '-' + pad(m + 1) + '-' + pad(d); if (w > 0 && w < 6) { wd++; if (iso > todayIso) rem++; } }
+    var meet = 0, tasks = {}, tick = 0, impN = 0, cat = {}, dowS = [0, 0, 0, 0, 0, 0, 0], dowN = [0, 0, 0, 0, 0, 0, 0], low = null;
+    rows.forEach(function (e) {
+      cat[e.category || 'Proyecto'] = (cat[e.category || 'Proyecto'] || 0) + e.duration_minutes;
+      if (!e.imputable) return;
+      impN++; if (e.ticket) tick++;
+      if ((e.category || '') === 'Reunión') meet += e.duration_minutes;
+      tasks[e.task] = (tasks[e.task] || 0) + e.duration_minutes;
+    });
+    S.days.forEach(function (d) { var w = new Date(d + 'T12:00:00').getDay(); dowS[w] += S.byDay[d].imp; dowN[w]++; if (S.byDay[d].imp > 0 && (!low || S.byDay[d].imp < S.byDay[low].imp)) low = d; });
+    var top = Object.keys(tasks).sort(function (a, b) { return tasks[b] - tasks[a]; }).slice(0, 6).map(function (k) { return { t: k, m: tasks[k] }; });
+    var goalMonth = wd * goalDay;
+    return { S: S, workdays: wd, remaining: rem, goalMonth: goalMonth, progress: goalMonth ? S.imp / goalMonth : 0, projection: S.imp + S.avg * rem,
+      meetings: meet, tasksN: Object.keys(tasks).length, ticketPct: impN ? tick / impN : 0, low: low, cat: cat, top: top,
+      dow: [1, 2, 3, 4, 5].map(function (w) { return { l: ['', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie'][w], v: dowN[w] ? dowS[w] / dowN[w] : 0, n: dowN[w] }; }) };
+  }
+  function chartDow(X, goalDay) {
+    var max = Math.max(goalDay, Math.max.apply(null, X.dow.map(function (d) { return d.v; })));
+    return '<div class="hbars">' + X.dow.map(function (d) {
+      return '<div class="hb"><span>' + d.l + '</span><div class="track"><i style="width:' + (d.v / max * 100) + '%;background:var(--i2)"></i><u style="left:' + (goalDay / max * 100) + '%"></u></div><b>' + (d.n ? fh(d.v) : '—') + '</b></div>';
+    }).join('') + '</div><p class="legend">Promedio imputable por día de la semana</p>';
+  }
+  function chartCats(X) {
+    var ks = Object.keys(X.cat).sort(function (a, b) { return X.cat[b] - X.cat[a]; });
+    if (!ks.length) return '<p class="muted">Sin datos este mes</p>';
+    var tot = ks.reduce(function (a, k) { return a + X.cat[k]; }, 0);
+    return '<div class="hbars">' + ks.map(function (k, i) {
+      return '<div class="hb"><span>' + esc(k) + '</span><div class="track"><i style="width:' + (X.cat[k] / tot * 100) + '%;background:' + PAL[i % PAL.length] + '"></i></div><b>' + fh(X.cat[k]) + '</b></div>';
+    }).join('') + '</div><p class="legend">Todas las horas del mes, incluidas las internas</p>';
+  }
+  function listTop(X) {
+    if (!X.top.length) return '<p class="muted">Sin datos este mes</p>';
+    return '<ol class="top">' + X.top.map(function (t) { return '<li><span>' + esc(t.t) + '</span><b>' + fh(t.m) + '</b></li>'; }).join('') + '</ol>';
+  }
+
+  var api = { extra: extra, chartDow: chartDow, chartCats: chartCats, listTop: listTop, FILES: FILES, table: table, workbook: workbook, stats: stats, chartDays: chartDays, chartDonut: chartDonut, chartWeeks: chartWeeks, bossWorkbook: bossWorkbook, personalWorkbook: personalWorkbook, fh: fh };
   if (typeof module !== 'undefined' && module.exports) module.exports = api; else root.BHHReport = api;
 })(typeof window !== 'undefined' ? window : globalThis);

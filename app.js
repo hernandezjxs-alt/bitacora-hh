@@ -222,7 +222,7 @@
       var q = await sb.from('time_entries').insert(batch);
       if (q.error) throw q.error;
       $('seedMsg').textContent = 'Listo: ' + fmtH(impMin) + ' imputables (esperado 83,25 h) y ' + fmtH(intMin) + ' internas (esperado 6,25 h).';
-      await loadBase(); loadDay();
+      await loadBase(); loadDay(); renderDatos();
     } catch (e) { $('seedMsg').textContent = 'Error: ' + (e.message || e) + ' (no se guardó nada)'; }
     ev.target.value = '';
   };
@@ -331,11 +331,11 @@
   async function loadMonthRows() {
     var from = pm.getFullYear() + '-' + pad(pm.getMonth() + 1) + '-01', last = new Date(pm.getFullYear(), pm.getMonth() + 1, 0).getDate();
     var to = pm.getFullYear() + '-' + pad(pm.getMonth() + 1) + '-' + pad(last);
-    var r = await sb.from('time_entries').select('entry_date,start_time,end_time,duration_minutes,task,ticket,ticket_status,imputable,projects(name,client_id)').gte('entry_date', from).lte('entry_date', to).order('entry_date').order('start_time');
+    var r = await sb.from('time_entries').select('entry_date,start_time,end_time,duration_minutes,task,ticket,ticket_status,imputable,category,projects(name,client_id)').gte('entry_date', from).lte('entry_date', to).order('entry_date').order('start_time');
     if (r.error) { err(r.error); return []; }
     return (r.data || []).map(function (e) {
       var c = e.projects && st.clients.find(function (x) { return x.id === e.projects.client_id; });
-      return { entry_date: e.entry_date, start_time: e.start_time, end_time: e.end_time, duration_minutes: e.duration_minutes, task: e.task, ticket: e.ticket, ticket_status: e.ticket_status, imputable: e.imputable, project: e.projects ? e.projects.name : '—', client: c ? c.name : '' };
+      return { entry_date: e.entry_date, start_time: e.start_time, end_time: e.end_time, duration_minutes: e.duration_minutes, task: e.task, ticket: e.ticket, ticket_status: e.ticket_status, imputable: e.imputable, category: e.category, project: e.projects ? e.projects.name : '—', client: c ? c.name : '' };
     });
   }
   function kpi(label, val, sub, cls) { return '<div class="kpi ' + (cls || '') + '"><small>' + label + '</small><b>' + val + '</b>' + (sub ? '<em>' + sub + '</em>' : '') + '</div>'; }
@@ -343,14 +343,22 @@
     $('mLabel').textContent = MESES[pm.getMonth()] + ' ' + pm.getFullYear();
     var rows = await loadMonthRows(), goal = st.settings ? st.settings.max_imputable_day_minutes : 480, R = window.BHHReport, S = R.stats(rows, goal);
     st.monthRows = rows;
-    var bestTxt = S.best ? S.best.slice(8) + '/' + S.best.slice(5, 7) + ' · ' + R.fh(S.byDay[S.best].imp) : '—';
+    var X = R.extra(rows, goal, iso(new Date()), pm.getFullYear() + '-' + pad(pm.getMonth() + 1));
+    var pct = function (v) { return Math.round(v * 100) + '%'; };
     $('kpis').innerHTML =
       kpi('Horas imputables', R.fh(S.imp), S.n + ' entradas', 'k1') + kpi('Horas internas', R.fh(S.int), 'daily y otras', 'k2') +
       kpi('Días con registro', S.days.length, S.okDays + ' cuadran con la meta', 'k3') + kpi('Promedio por día', R.fh(S.avg), 'imputable', 'k4') +
-      kpi('Cumplimiento', Math.round(S.compliance * 100) + '%', 'vs. ' + R.fh(goal) + ' por día', 'k5') + kpi('Mejor día', S.best ? S.best.slice(8) + '/' + S.best.slice(5, 7) : '—', S.best ? R.fh(S.byDay[S.best].imp) : '', 'k6');
+      kpi('Cumplimiento', pct(S.compliance), 'vs. ' + R.fh(goal) + ' por día', 'k5') + kpi('Mejor día', S.best ? S.best.slice(8) + '/' + S.best.slice(5, 7) : '—', S.best ? R.fh(S.byDay[S.best].imp) : '', 'k6') +
+      kpi('Meta del mes', R.fh(X.goalMonth), X.workdays + ' días hábiles · ' + pct(X.progress) + ' logrado', 'k7') +
+      kpi('Proyección a fin de mes', R.fh(X.projection), X.remaining + ' días hábiles por delante', 'k8') +
+      kpi('Reuniones', R.fh(X.meetings), 'horas imputadas', 'k9') + kpi('Tareas distintas', X.tasksN, 'en el mes', 'k10') +
+      kpi('Con ticket', pct(X.ticketPct), 'de las entradas imputables', 'k11') + kpi('Día más bajo', X.low ? X.low.slice(8) + '/' + X.low.slice(5, 7) : '—', X.low ? R.fh(S.byDay[X.low].imp) : '', 'k12');
     $('chDays').innerHTML = R.chartDays(S, goal);
     $('chProj').innerHTML = R.chartDonut(S);
     $('chWeeks').innerHTML = R.chartWeeks(S, 2400);
+    $('chDow').innerHTML = R.chartDow(X, goal);
+    $('chCat').innerHTML = R.chartCats(X);
+    $('chTop').innerHTML = R.listTop(X);
   }
   $('mPrev').onclick = function () { pm = new Date(pm.getFullYear(), pm.getMonth() - 1, 1); renderPanel(); };
   $('mNext').onclick = function () { pm = new Date(pm.getFullYear(), pm.getMonth() + 1, 1); renderPanel(); };
@@ -376,11 +384,11 @@
   }
   var DIAS = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
   async function loadRange(from, to) {
-    var r = await sb.from('time_entries').select('entry_date,start_time,end_time,duration_minutes,task,ticket,ticket_status,imputable,projects(name,client_id)').gte('entry_date', from).lte('entry_date', to).order('entry_date').order('start_time');
+    var r = await sb.from('time_entries').select('entry_date,start_time,end_time,duration_minutes,task,ticket,ticket_status,imputable,category,projects(name,client_id)').gte('entry_date', from).lte('entry_date', to).order('entry_date').order('start_time');
     if (r.error) { err(r.error); return []; }
     return (r.data || []).map(function (e) {
       var c = e.projects && st.clients.find(function (x) { return x.id === e.projects.client_id; });
-      return { entry_date: e.entry_date, start_time: e.start_time, end_time: e.end_time, duration_minutes: e.duration_minutes, task: e.task, ticket: e.ticket, ticket_status: e.ticket_status, imputable: e.imputable, project: e.projects ? e.projects.name : '—', client: c ? c.name : '' };
+      return { entry_date: e.entry_date, start_time: e.start_time, end_time: e.end_time, duration_minutes: e.duration_minutes, task: e.task, ticket: e.ticket, ticket_status: e.ticket_status, imputable: e.imputable, category: e.category, project: e.projects ? e.projects.name : '—', client: c ? c.name : '' };
     });
   }
   var infRows = [];
@@ -486,9 +494,41 @@
   $('askChips').onclick = function (e) { var b = e.target.closest('.chip'); if (b) ask(b.textContent); };
 
   // ===== Volver arriba =====
-  function goTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
+  function goTop() { document.querySelectorAll('.tbl-wrap').forEach(function (t) { t.scrollTop = 0; }); window.scrollTo({ top: 0, behavior: 'smooth' }); setTimeout(function () { window.scrollTo(0, 0); document.documentElement.scrollTop = 0; document.body.scrollTop = 0; }, 450); }
   $('toTop').onclick = goTop; $('footTop').onclick = goTop;
   window.addEventListener('scroll', function () { $('toTop').hidden = !(st.user && window.scrollY > 300); }, { passive: true });
+
+  // ===== Datos: resumen y respaldo =====
+  async function loadAll() {
+    var all = [], from = 0, step = 1000;
+    while (true) {
+      var r = await sb.from('time_entries').select('entry_date,start_time,end_time,duration_minutes,task,ticket,ticket_status,imputable,category,projects(name,client_id)').order('entry_date').order('start_time').range(from, from + step - 1);
+      if (r.error) { err(r.error); break; }
+      all = all.concat(r.data || []); if (!r.data || r.data.length < step) break; from += step;
+    }
+    return all.map(function (e) {
+      var c = e.projects && st.clients.find(function (x) { return x.id === e.projects.client_id; });
+      return { entry_date: e.entry_date, start_time: e.start_time, end_time: e.end_time, duration_minutes: e.duration_minutes, task: e.task, ticket: e.ticket, ticket_status: e.ticket_status, imputable: e.imputable, category: e.category, project: e.projects ? e.projects.name : '—', client: c ? c.name : '' };
+    });
+  }
+  async function renderDatos() {
+    var rows = await loadAll(), imp = 0, int = 0, days = {};
+    rows.forEach(function (e) { days[e.entry_date] = 1; if (e.imputable) imp += e.duration_minutes; else int += e.duration_minutes; });
+    var ds = Object.keys(days).sort(), f = function (d) { return d ? d.slice(8) + '/' + d.slice(5, 7) + '/' + d.slice(0, 4) : '—'; };
+    $('dKpis').innerHTML = kpi('Registros', rows.length, 'entradas guardadas', 'k1') + kpi('Horas imputables', fmtH(imp), 'en total', 'k3') + kpi('Horas internas', fmtH(int), 'en total', 'k2') +
+      kpi('Días con registro', ds.length, 'desde ' + f(ds[0]), 'k4') + kpi('Último registro', f(ds[ds.length - 1]), '', 'k5') + kpi('Proyectos', st.projects.length, st.clients.length + ' clientes', 'k6');
+    st.allRows = rows;
+  }
+  function dl(name, text, type) { var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([text], { type: type })); a.download = name; a.click(); toast('Descargado: ' + name); }
+  $('bkCsv').onclick = async function () {
+    var rows = st.allRows || await loadAll(), q = function (v) { return '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"'; };
+    dl('bitacora-hh-todo.csv', '﻿' + [['fecha', 'inicio', 'fin', 'duracion_min', 'cliente', 'proyecto', 'tarea', 'ticket', 'imputable', 'categoria']].concat(rows.map(function (e) { return [e.entry_date, hm(e.start_time), hm(e.end_time), e.duration_minutes, e.client, e.project, e.task, e.ticket, e.imputable ? 'SI' : 'NO', e.category]; })).map(function (r) { return r.map(q).join(';'); }).join('\r\n'), 'text/csv;charset=utf-8');
+  };
+  $('bkJson').onclick = async function () { var rows = st.allRows || await loadAll(); dl('bitacora-hh-respaldo.json', JSON.stringify({ app: 'Bitácora HH', exportado: new Date().toISOString(), proyectos: st.projects, clientes: st.clients, entradas: rows }, null, 2), 'application/json'); };
+  $('bkXls').onclick = async function () {
+    var rows = st.allRows || await loadAll(); if (!rows.length) return toast('No hay datos');
+    save(window.BHHReport.personalWorkbook(XLSX, rows, st.settings ? st.settings.max_imputable_day_minutes : 480), 'Bitacora_HH_todo.xlsx');
+  };
 
   document.querySelector('.tabs').onclick = function (e) {
     var b = e.target.closest('button'); if (!b) return;
@@ -497,6 +537,7 @@
     scrollTo(0, 0);
     if (b.dataset.tab === 'panel') renderPanel();
     if (b.dataset.tab === 'inf') renderInf();
+    if (b.dataset.tab === 'datos') renderDatos();
   };
 
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(function () {});
