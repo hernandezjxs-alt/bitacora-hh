@@ -53,10 +53,10 @@
   sb.auth.onAuthStateChange(function (ev, session) { if (ev === 'PASSWORD_RECOVERY') $('resetM').hidden = false; boot(session); });
 
   async function boot(session) {
-    if (!session) { st.user = null; clearInterval(st.tick); $('app').hidden = true; $('auth').hidden = false; return; }
+    if (!session) { st.user = null; clearInterval(st.tick); $('askFab').hidden = true; $('app').hidden = true; $('auth').hidden = false; return; }
     if (st.user && st.user.id === session.user.id) return;
     st.user = session.user;
-    $('auth').hidden = true; $('app').hidden = false;
+    $('auth').hidden = true; $('app').hidden = false; $('askFab').hidden = false;
     await loadBase();
     $('dayPick').value = st.day;
     await loadDay();
@@ -456,6 +456,28 @@
     location.href = 'mailto:' + encodeURIComponent(to) + '?subject=' + encodeURIComponent(sub) + '&body=' + encodeURIComponent(body + '\n\n(Archivo descargado: ' + name + ')');
     toast('Excel descargado: adjúntalo al correo', 6000);
   };
+
+  // ===== Asistente (Claude) =====
+  var chatHist = [];
+  var CHIPS = ['¿Cuántas horas llevo esta semana?', 'Resume mi semana en 5 líneas', 'Redacta los comentarios del TMS de hoy', '¿Qué días no cuadran con las 8 h?', '¿Cuánto he dedicado a cada proyecto este mes?'];
+  $('askChips').innerHTML = CHIPS.map(function (c) { return '<button type="button" class="chip">' + esc(c) + '</button>'; }).join('');
+  function addMsg(role, text) {
+    var d = document.createElement('div'); d.className = 'msg-' + role; d.textContent = text; $('askLog').appendChild(d); $('askLog').scrollTop = 1e6; return d;
+  }
+  $('askFab').onclick = function () { $('askM').hidden = false; if (!$('askLog').children.length) addMsg('bot', 'Hola, soy Claude. Puedo responder sobre tus horas registradas, resumir tu semana o ayudarte a redactar los comentarios del TMS. ¿Qué necesitas?'); setTimeout(function () { $('askQ').focus(); }, 50); };
+  async function ask(q) {
+    if (!q) return;
+    $('askChips').hidden = true; addMsg('user', q); $('askQ').value = '';
+    var w = addMsg('bot', 'Pensando…'); w.classList.add('wait');
+    var r = await sb.functions.invoke('ask-claude', { body: { question: q, history: chatHist } });
+    w.classList.remove('wait');
+    var a = r.data && r.data.answer;
+    if (r.error || !a) { var m = (r.data && r.data.error) || (r.error && r.error.message) || 'No pude responder ahora.'; w.textContent = 'No pude responder: ' + m; return; }
+    w.textContent = a; chatHist.push({ role: 'user', content: q }, { role: 'assistant', content: a });
+    $('askLog').scrollTop = 1e6;
+  }
+  $('askF').onsubmit = function (e) { e.preventDefault(); ask($('askQ').value.trim()); };
+  $('askChips').onclick = function (e) { var b = e.target.closest('.chip'); if (b) ask(b.textContent); };
 
   document.querySelector('.tabs').onclick = function (e) {
     var b = e.target.closest('button'); if (!b) return;

@@ -137,6 +137,11 @@
 <div id="usersM" class="modal" hidden><div class="mc"><h2>Usuarios</h2><div id="usersB" class="stack"></div><button class="btn" data-close="usersM">Cerrar</button></div></div>
 <div id="inboxM" class="modal" hidden><div class="mc"><h2>Mensajes recibidos</h2><div id="inboxB" class="stack"></div><button class="btn" data-close="inboxM">Cerrar</button></div></div>
 <div id="mailM" class="modal" hidden><form id="mailF" class="mc"><h2>Enviar por correo</h2><input id="mTo" type="email" placeholder="Correo del destinatario" autocomplete="email"><input id="mSub" placeholder="Asunto"><textarea id="mBody" rows="7"></textarea><p class="muted" id="mTip"></p><div class="row"><button type="button" class="btn grow" data-close="mailM">Cancelar</button><button class="btn primary grow">Enviar</button></div></form></div>
+<button id="askFab" class="fab" aria-label="Preguntarle a Claude" title="Preguntarle a Claude" hidden><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 16l.8 2.2L22 19l-2.2.8L19 22l-.8-2.2L16 19l2.2-.8z"/></svg></button>
+<div id="askM" class="modal" hidden><div class="mc chat"><div class="row"><h2 class="grow">Pregúntale a Claude</h2><button class="ico" data-close="askM" aria-label="Cerrar">×</button></div>
+<div id="askLog" class="log"></div>
+<div id="askChips" class="chips"></div>
+<form id="askF" class="row"><input id="askQ" placeholder="Escribe tu pregunta…" maxlength="1000" autocomplete="off"><button class="btn primary" aria-label="Enviar">➤</button></form></div></div>
 <div id="toast" role="status"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.min.js"></script>

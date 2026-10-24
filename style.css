@@ -98,3 +98,11 @@ header .contact-open{color:var(--i6)!important;opacity:1}
 .tabs button{font-size:.66rem;padding:6px 2px}.tabs{gap:0;padding-left:6px;padding-right:6px}
 .tabs button[data-tab=inf] i{color:var(--i5)}
 .tbl th.srt{cursor:pointer;user-select:none}.tbl th.srt span{opacity:.7;font-size:.7rem}
+/* asistente */
+.fab{position:fixed;right:16px;bottom:calc(84px + env(safe-area-inset-bottom));width:54px;height:54px;border-radius:50%;border:0;background:linear-gradient(135deg,#8b5cf6,#ec4899);color:#fff;box-shadow:0 6px 18px rgba(139,92,246,.45);cursor:pointer;display:grid;place-items:center;z-index:15}
+.chat{height:min(80vh,640px);grid-template-rows:auto 1fr auto auto}
+.log{overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding:2px}
+.log>div{max-width:88%;padding:10px 14px;border-radius:16px;white-space:pre-wrap;overflow-wrap:anywhere;font-size:.93rem}
+.msg-bot{align-self:flex-start;background:var(--acs)}.msg-user{align-self:flex-end;background:var(--ac);color:#fff}[data-theme=dark] .msg-user{color:#0b0d12}
+.msg-bot.wait{opacity:.6}
+.chips{display:flex;gap:6px;flex-wrap:wrap}.chips .chip{white-space:normal;text-align:left;min-height:34px}
