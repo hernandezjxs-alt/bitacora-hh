@@ -59,11 +59,12 @@
       </details>
       <div class="hoy-top">
         <section class="panel dayp">
-          <div class="daynav">
+          <div class="daynav calwrap">
             <button class="ico" id="prev" aria-label="Día anterior">‹</button>
-            <input type="date" id="dayPick">
+            <input type="hidden" id="dayPick"><button class="daybtn" id="dayBtn" aria-haspopup="dialog" aria-expanded="false"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18"/></svg><span id="dayTxt"></span></button>
             <button class="ico" id="next" aria-label="Día siguiente">›</button>
             <button class="chip" id="todayBtn">Hoy</button>
+            <div class="cal" id="cal" role="dialog" aria-label="Calendario" hidden></div>
           </div>
           <div class="hero">
             <div><span class="big" id="tImp">0,00</span><span class="unit">h imputables</span></div>
@@ -146,7 +147,7 @@
       <section class="panel stack wide"><h2>Resumen de tus datos</h2><div class="kpis" id="dKpis"></div></section>
       <section class="panel stack"><h2>Respaldo</h2>
         <p class="muted">Descarga todo tu registro (todas las fechas) para guardarlo o abrirlo en Excel.</p>
-        <div class="row wrap"><button class="btn primary fit" id="bkCsv">Todo en CSV</button><button class="btn fit" id="bkJson">Respaldo JSON</button><button class="btn fit" id="bkXls">Todo en Excel</button></div>
+        <div class="btns"><button class="btn primary" id="bkCsv">Todo en CSV</button><button class="btn" id="bkJson">Respaldo JSON</button><button class="btn" id="bkXls">Todo en Excel</button></div>
       </section>
       <section class="panel stack"><h2>Importar semilla (CSV)</h2>
         <p class="muted">Carga un CSV con columnas fecha;inicio;fin;duracion_min;cliente;proyecto;tarea;ticket;imputable;categoria. No reemplaza lo existente: agrega.</p>

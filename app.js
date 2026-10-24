@@ -58,7 +58,7 @@
     st.user = session.user;
     $('auth').hidden = true; $('app').hidden = false; $('askFab').hidden = false;
     await loadBase();
-    $('dayPick').value = st.day;
+    $('dayPick').value = st.day; $('dayTxt').textContent = dayLabel(st.day);
     $('manualD').open = true;
     await loadDay();
 
@@ -89,6 +89,7 @@
     var r = await sb.from('time_entries').select('*, projects(name, client_id)').eq('entry_date', st.day).order('start_time');
     if (r.error) return err(r.error);
     st.entries = r.data || [];
+    cal.data = {};
     render();
     loadLog();
   }
@@ -150,12 +151,48 @@
     loadDay();
   };
   $('logMode').onclick = function (e) { var m = e.target.getAttribute('data-m'); if (m) { logMode = m; loadLog(); } };
-  function go(d) { st.day = d; $('dayPick').value = d; loadDay(); }
+  var MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'], DIAS = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
+  function dayLabel(d) { var x = new Date(d + 'T12:00:00'); return DIAS[x.getDay()].slice(0, 3) + ' ' + x.getDate() + ' ' + MESES[x.getMonth()].slice(0, 3) + ' ' + x.getFullYear(); }
+  function go(d) { st.day = d; $('dayPick').value = d; $('dayTxt').textContent = dayLabel(d); loadDay(); }
+  // calendario propio
+  var cal = { y: 0, m: 0, data: {} };
+  function ymd(y, m, d) { return y + '-' + pad(m + 1) + '-' + pad(d); }
+  async function calLoad() {
+    var key = cal.y + '-' + cal.m; if (cal.data[key]) return;
+    var last = new Date(cal.y, cal.m + 1, 0).getDate();
+    var r = await sb.from('time_entries').select('entry_date,duration_minutes,imputable').gte('entry_date', ymd(cal.y, cal.m, 1)).lte('entry_date', ymd(cal.y, cal.m, last)).limit(2000);
+    var o = {}; ((r.data) || []).forEach(function (e) { if (e.imputable) o[e.entry_date] = (o[e.entry_date] || 0) + e.duration_minutes; });
+    cal.data[key] = o;
+  }
+  function calDraw() {
+    var first = new Date(cal.y, cal.m, 1), off = (first.getDay() + 6) % 7, n = new Date(cal.y, cal.m + 1, 0).getDate(), td = today(), data = cal.data[cal.y + '-' + cal.m] || {}, goal = st.settings ? st.settings.max_imputable_day_minutes : 480;
+    var h = '<div class="calhd"><button class="ico" data-cm="-1" aria-label="Mes anterior">‹</button><b>' + MESES[cal.m][0].toUpperCase() + MESES[cal.m].slice(1) + ' ' + cal.y + '</b><button class="ico" data-cm="1" aria-label="Mes siguiente">›</button></div><div class="calg">';
+    ['Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sá', 'Do'].forEach(function (w) { h += '<i class="wd">' + w + '</i>'; });
+    for (var i = 0; i < off; i++) h += '<i></i>';
+    for (var d = 1; d <= n; d++) {
+      var k = ymd(cal.y, cal.m, d), wk = (off + d - 1) % 7 >= 5, v = data[k] || 0, lv = v ? (v >= goal * 0.95 ? 3 : v >= goal * 0.5 ? 2 : 1) : 0;
+      h += '<button class="cd' + (k === st.day ? ' sel' : '') + (k === td ? ' tod' : '') + (wk ? ' we' : '') + ' l' + lv + '" data-d="' + k + '" title="' + (v ? fmtH(v) : 'Sin horas') + '">' + d + '</button>';
+    }
+    $('cal').innerHTML = h + '</div><div class="calft"><span><i class="l3"></i>Completo <i class="l2"></i>Parcial <i class="l1"></i>Poco</span><button class="chip" data-d="' + td + '">Hoy</button></div>';
+  }
+  async function calOpen() {
+    var d = new Date(st.day + 'T12:00:00'); cal.y = d.getFullYear(); cal.m = d.getMonth();
+    $('cal').hidden = false; $('dayBtn').setAttribute('aria-expanded', 'true'); calDraw(); await calLoad(); calDraw();
+  }
+  function calClose() { $('cal').hidden = true; $('dayBtn').setAttribute('aria-expanded', 'false'); }
+  $('dayBtn').onclick = function (e) { e.stopPropagation(); if ($('cal').hidden) calOpen(); else calClose(); };
+  $('cal').onclick = async function (e) {
+    e.stopPropagation();
+    var b = e.target.closest('[data-cm]'), c = e.target.closest('[data-d]');
+    if (b) { cal.m += +b.getAttribute('data-cm'); if (cal.m < 0) { cal.m = 11; cal.y--; } if (cal.m > 11) { cal.m = 0; cal.y++; } calDraw(); await calLoad(); calDraw(); }
+    else if (c) { calClose(); go(c.getAttribute('data-d')); }
+  };
+  document.addEventListener('click', calClose);
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') calClose(); });
   function shift(n) { var d = new Date(st.day + 'T12:00:00'); d.setDate(d.getDate() + n); go(d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate())); }
   $('prev').onclick = function () { shift(-1); };
   $('next').onclick = function () { shift(1); };
   $('todayBtn').onclick = function () { go(today()); };
-  $('dayPick').onchange = function () { if ($('dayPick').value) go($('dayPick').value); };
 
   async function insertEntry(o) {
     var r = await sb.from('time_entries').insert(o);
@@ -567,7 +604,7 @@
     rows.forEach(function (e) { days[e.entry_date] = 1; if (e.imputable) imp += e.duration_minutes; else int += e.duration_minutes; });
     var ds = Object.keys(days).sort(), f = function (d) { return d ? d.slice(8) + '/' + d.slice(5, 7) + '/' + d.slice(0, 4) : '—'; };
     $('dKpis').innerHTML = kpi('Registros', rows.length, 'entradas guardadas', 'k1') + kpi('Horas imputables', fmtH(imp), 'en total', 'k3') + kpi('Horas internas', fmtH(int), 'en total', 'k2') +
-      kpi('Días con registro', ds.length, 'desde ' + f(ds[0]), 'k4') + kpi('Último registro', f(ds[ds.length - 1]), '', 'k5') + kpi('Proyectos', st.projects.length, st.clients.length + ' clientes', 'k6');
+      kpi('Días con registro', ds.length, 'desde ' + f(ds[0]), 'k4') + kpi('Último registro', f(ds[ds.length - 1]), '', 'k5') + kpi('Proyectos', st.projects.length, st.clients.length + (st.clients.length === 1 ? ' cliente' : ' clientes'), 'k6');
     st.allRows = rows;
   }
   function dl(name, text, type) { var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([text], { type: type })); a.download = name; a.click(); toast('Descargado: ' + name); }
