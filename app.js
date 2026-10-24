@@ -319,11 +319,51 @@
     await sb.from('contact_messages').update({ read: true }).eq('read', false); $('inboxDot').hidden = true;
   };
 
+  // ===== Panel: KPIs, gráficas y Excel =====
+  var pm = new Date(); pm = new Date(pm.getFullYear(), pm.getMonth(), 1);
+  var MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+  async function loadMonthRows() {
+    var from = pm.getFullYear() + '-' + pad(pm.getMonth() + 1) + '-01', last = new Date(pm.getFullYear(), pm.getMonth() + 1, 0).getDate();
+    var to = pm.getFullYear() + '-' + pad(pm.getMonth() + 1) + '-' + pad(last);
+    var r = await sb.from('time_entries').select('entry_date,start_time,end_time,duration_minutes,task,ticket,ticket_status,imputable,projects(name,client_id)').gte('entry_date', from).lte('entry_date', to).order('entry_date').order('start_time');
+    if (r.error) { err(r.error); return []; }
+    return (r.data || []).map(function (e) {
+      var c = e.projects && st.clients.find(function (x) { return x.id === e.projects.client_id; });
+      return { entry_date: e.entry_date, start_time: e.start_time, end_time: e.end_time, duration_minutes: e.duration_minutes, task: e.task, ticket: e.ticket, ticket_status: e.ticket_status, imputable: e.imputable, project: e.projects ? e.projects.name : '—', client: c ? c.name : '' };
+    });
+  }
+  function kpi(label, val, sub, cls) { return '<div class="kpi ' + (cls || '') + '"><small>' + label + '</small><b>' + val + '</b>' + (sub ? '<em>' + sub + '</em>' : '') + '</div>'; }
+  async function renderPanel() {
+    $('mLabel').textContent = MESES[pm.getMonth()] + ' ' + pm.getFullYear();
+    var rows = await loadMonthRows(), goal = st.settings ? st.settings.max_imputable_day_minutes : 480, R = window.BHHReport, S = R.stats(rows, goal);
+    st.monthRows = rows;
+    var bestTxt = S.best ? S.best.slice(8) + '/' + S.best.slice(5, 7) + ' · ' + R.fh(S.byDay[S.best].imp) : '—';
+    $('kpis').innerHTML =
+      kpi('Horas imputables', R.fh(S.imp), S.n + ' entradas', 'k1') + kpi('Horas internas', R.fh(S.int), 'daily y otras', 'k2') +
+      kpi('Días con registro', S.days.length, S.okDays + ' cuadran con la meta', 'k3') + kpi('Promedio por día', R.fh(S.avg), 'imputable', 'k4') +
+      kpi('Cumplimiento', Math.round(S.compliance * 100) + '%', 'vs. ' + R.fh(goal) + ' por día', 'k5') + kpi('Mejor día', S.best ? S.best.slice(8) + '/' + S.best.slice(5, 7) : '—', S.best ? R.fh(S.byDay[S.best].imp) : '', 'k6');
+    $('chDays').innerHTML = R.chartDays(S, goal);
+    $('chProj').innerHTML = R.chartDonut(S);
+    $('chWeeks').innerHTML = R.chartWeeks(S, 2400);
+  }
+  $('mPrev').onclick = function () { pm = new Date(pm.getFullYear(), pm.getMonth() - 1, 1); renderPanel(); };
+  $('mNext').onclick = function () { pm = new Date(pm.getFullYear(), pm.getMonth() + 1, 1); renderPanel(); };
+  function save(wb, name) { if (!window.XLSX) return toast('No cargó el generador de Excel; revisa tu conexión'); XLSX.writeFile(wb, name); toast('Descargado: ' + name); }
+  $('xPersonal').onclick = async function () {
+    var rows = await loadMonthRows(); if (!rows.length) return toast('No hay horas este mes');
+    save(window.BHHReport.personalWorkbook(XLSX, rows, st.settings ? st.settings.max_imputable_day_minutes : 480), 'Horas_personal_' + pm.getFullYear() + pad(pm.getMonth() + 1) + '.xlsx');
+  };
+  $('xBoss').onclick = async function () {
+    var rows = await loadMonthRows(); if (!rows.length) return toast('No hay horas este mes');
+    save(window.BHHReport.bossWorkbook(XLSX, rows), pm.getFullYear() + pad(pm.getMonth() + 1) + '_HH_Masisa_1_1.xlsx');
+  };
+
   document.querySelector('.tabs').onclick = function (e) {
     var b = e.target.closest('button'); if (!b) return;
     document.querySelectorAll('.tabs button').forEach(function (x) { x.classList.toggle('on', x === b); });
     document.querySelectorAll('.tab').forEach(function (x) { x.classList.toggle('on', x.id === 'tab-' + b.dataset.tab); });
     scrollTo(0, 0);
+    if (b.dataset.tab === 'panel') renderPanel();
   };
 
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(function () {});

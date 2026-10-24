@@ -14,7 +14,7 @@ jobs:
         run: |
           V=$(git rev-parse --short HEAD)
           sed -i "s/__V__/$V/g" index.html
-          mkdir _site && cp -r index.html app.js style.css config.js sw.js manifest.webmanifest icons seed _site/
+          mkdir _site && cp -r index.html app.js report.js style.css config.js sw.js manifest.webmanifest icons seed _site/
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with: { path: _site }
