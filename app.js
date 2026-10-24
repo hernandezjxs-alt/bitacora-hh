@@ -17,8 +17,8 @@
   // ===== Tema =====
   function applyTheme(t) { document.documentElement.setAttribute('data-theme', t); try { localStorage.setItem('bhh-theme', t); } catch (e) {} }
   var saved = null; try { saved = localStorage.getItem('bhh-theme'); } catch (e) {}
-  applyTheme(saved || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));
-  $('themeBtn').onclick = function () { applyTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'); };
+  applyTheme(saved || 'dark');
+  document.querySelectorAll('.themeBtn').forEach(function (b) { b.onclick = function () { applyTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'); }; });
 
   // ===== Autenticación =====
   function setMode(m) {
