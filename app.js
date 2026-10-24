@@ -90,6 +90,7 @@
     if (r.error) return err(r.error);
     st.entries = r.data || [];
     render();
+    loadLog();
   }
   function render() {
     var imp = 0, int = 0;
@@ -100,22 +101,55 @@
     $('dN').textContent = st.entries.length;
     $('dLeft').textContent = imp >= goal ? 'Cumplida' : fmtH(goal - imp);
     var le = st.entries[st.entries.length - 1]; $('dLast').textContent = le ? hm(le.end_time) : '—';
-    $('list').innerHTML = st.entries.map(function (e) {
-      var pn = e.projects ? e.projects.name : '';
-      return '<li class="' + (e.imputable ? '' : 'int') + '"><span class="t">' + hm(e.start_time) + '–' + hm(e.end_time) + '</span>' +
-        '<span class="x">' + esc(e.task) + '<br><small class="muted">' + esc(pn) + (e.ticket ? ' · ' + esc(e.ticket) : '') + ' · ' + fmtH(e.duration_minutes) + '</small></span>' +
-        '<button class="ico" data-del="' + e.id + '" aria-label="Eliminar" title="Eliminar">×</button></li>';
-    }).join('') || '<li class="muted">Sin entradas este día</li>';
     var last = st.entries[st.entries.length - 1];
     if (last) { $('mStart').value = hm(last.end_time); }
   }
-  $('list').onclick = async function (e) {
+  var logMode = 'month', logSort = { col: 0, dir: -1 }, logRows = [];
+  var LCOLS = ['Fecha', 'Inicio', 'Fin', 'Proyecto', 'Tarea', 'Ticket', 'Horas', 'Tipo'];
+  function logRange() {
+    var d = new Date(st.day + 'T12:00:00'), a, b;
+    function f(x) { return x.getFullYear() + '-' + pad(x.getMonth() + 1) + '-' + pad(x.getDate()); }
+    if (logMode === 'day') return [st.day, st.day];
+    if (logMode === 'week') { var w = (d.getDay() + 6) % 7; a = new Date(d); a.setDate(d.getDate() - w); b = new Date(a); b.setDate(a.getDate() + 6); return [f(a), f(b)]; }
+    a = new Date(d.getFullYear(), d.getMonth(), 1, 12); b = new Date(d.getFullYear(), d.getMonth() + 1, 0, 12); return [f(a), f(b)];
+  }
+  async function loadLog() {
+    var rg = logRange();
+    var r = await sb.from('time_entries').select('id,entry_date,start_time,end_time,task,ticket,duration_minutes,imputable,projects(name)').gte('entry_date', rg[0]).lte('entry_date', rg[1]).order('entry_date').order('start_time').limit(2000);
+    if (r.error) return err(r.error);
+    logRows = r.data || [];
+    drawLog();
+  }
+  function drawLog() {
+    var c = logSort.col, dr = logSort.dir;
+    var rows = logRows.slice().sort(function (x, y) {
+      var k = [function (e) { return e.entry_date; }, function (e) { return e.start_time; }, function (e) { return e.end_time; }, function (e) { return e.projects ? e.projects.name : ''; }, function (e) { return e.task || ''; }, function (e) { return e.ticket || ''; }, function (e) { return e.duration_minutes; }, function (e) { return e.imputable ? 'Imputable' : 'Interna'; }][c];
+      var p = k(x), q = k(y), r = (typeof p === 'number') ? p - q : String(p).localeCompare(String(q), 'es', { numeric: true });
+      if (r === 0) r = x.entry_date === y.entry_date ? (x.start_time < y.start_time ? -1 : 1) : (x.entry_date < y.entry_date ? -1 : 1);
+      return r * (r === 0 ? 1 : dr);
+    });
+    var imp = 0, inn = 0;
+    rows.forEach(function (e) { if (e.imputable) imp += e.duration_minutes; else inn += e.duration_minutes; });
+    var h = '<thead><tr>' + LCOLS.map(function (n, i) { var on = logSort.col === i; return '<th data-c="' + i + '" class="srt" aria-sort="' + (on ? (dr > 0 ? 'ascending' : 'descending') : 'none') + '">' + n + '<span>' + (on ? (dr > 0 ? ' ▲' : ' ▼') : ' ↕') + '</span></th>'; }).join('') + '<th></th></tr></thead><tbody>';
+    h += rows.map(function (e) {
+      var d = e.entry_date.split('-');
+      return '<tr class="' + (e.imputable ? '' : 'int') + '"><td>' + d[2] + '/' + d[1] + '/' + d[0] + '</td><td>' + hm(e.start_time) + '</td><td>' + hm(e.end_time) + '</td><td>' + esc(e.projects ? e.projects.name : '') + '</td><td>' + esc(e.task) + '</td><td>' + esc(e.ticket || '') + '</td><td class="num">' + fmtH(e.duration_minutes) + '</td><td>' + (e.imputable ? 'Imputable' : 'Interna') + '</td><td><button class="ico" data-del="' + e.id + '" aria-label="Eliminar" title="Eliminar">×</button></td></tr>';
+    }).join('') || '<tr><td colspan="9" class="muted">Sin entradas en este período</td></tr>';
+    $('logT').innerHTML = h + '</tbody>';
+    var rg = logRange();
+    $('logInfo').textContent = rows.length + ' entradas · ' + fmtH(imp) + ' imputables · ' + fmtH(inn) + ' internas · ' + rg[0].split('-').reverse().join('/') + (rg[0] === rg[1] ? '' : ' – ' + rg[1].split('-').reverse().join('/'));
+    document.querySelectorAll('#logMode button').forEach(function (b) { b.classList.toggle('on', b.getAttribute('data-m') === logMode); });
+  }
+  $('logT').onclick = async function (e) {
+    var th = e.target.closest('th.srt');
+    if (th) { var c = +th.getAttribute('data-c'); if (logSort.col === c) logSort.dir = -logSort.dir; else { logSort.col = c; logSort.dir = c === 6 ? -1 : 1; } drawLog(); return; }
     var id = e.target.getAttribute('data-del');
     if (!id || !(await askConfirm('Eliminar entrada', '¿Seguro que quieres eliminarla?', 'Eliminar'))) return;
     var r = await sb.from('time_entries').delete().eq('id', id);
     if (r.error) return err(r.error);
     loadDay();
   };
+  $('logMode').onclick = function (e) { var m = e.target.getAttribute('data-m'); if (m) { logMode = m; loadLog(); } };
   function go(d) { st.day = d; $('dayPick').value = d; loadDay(); }
   function shift(n) { var d = new Date(st.day + 'T12:00:00'); d.setDate(d.getDate() + n); go(d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate())); }
   $('prev').onclick = function () { shift(-1); };
@@ -495,12 +529,13 @@
 
   // ===== Volver arriba =====
   function goTop() {
-    document.querySelectorAll('.tbl-wrap,.list').forEach(function (t) { t.scrollTop = 0; });
-    var se = document.scrollingElement || document.documentElement, from = se.scrollTop, t0 = performance.now(), dur = 350;
+    document.querySelectorAll('.tbl-wrap').forEach(function (t) { t.scrollTop = 0; });
+    var se = document.scrollingElement || document.documentElement, from = Math.max(se.scrollTop, window.scrollY || 0), t0 = performance.now(), dur = 300;
+    function fin() { var hd = document.querySelector('#app > header'); if (hd) hd.scrollIntoView({ block: 'start' }); window.scrollTo(0, 0); se.scrollTop = 0; document.documentElement.scrollTop = 0; document.body.scrollTop = 0; }
     function step(t) {
       var k = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - k, 3);
-      se.scrollTop = from * (1 - e); window.scrollTo(0, from * (1 - e));
-      if (k < 1) requestAnimationFrame(step); else { se.scrollTop = 0; document.body.scrollTop = 0; window.scrollTo(0, 0); }
+      window.scrollTo(0, from * (1 - e));
+      if (k < 1) requestAnimationFrame(step); else { fin(); setTimeout(fin, 120); }
     }
     requestAnimationFrame(step);
   }

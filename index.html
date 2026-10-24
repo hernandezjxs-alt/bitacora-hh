@@ -96,8 +96,10 @@
           </form>
         </details>
       </div>
-      <div class="row head"><h2>Bitácora del día</h2><span class="sp"></span><button class="chip" id="dailyBtn">+ Daily</button></div>
-      <ul id="list" class="list"></ul>
+      <div class="row head"><h2>Bitácora</h2><span class="sp"></span><button class="chip" id="dailyBtn">+ Daily</button></div>
+      <div class="row wrap" id="logMode"><button class="chip" data-m="day">Día</button><button class="chip" data-m="week">Semana</button><button class="chip on" data-m="month">Mes</button></div>
+      <p class="muted" id="logInfo"></p>
+      <div class="tbl-wrap tall"><table class="tbl" id="logT"></table></div>
     </div>
     <div class="tab" id="tab-panel">
       <div class="daynav">

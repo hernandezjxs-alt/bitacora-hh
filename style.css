@@ -1,6 +1,6 @@
 :root{--bg:#fafafa;--fg:#111827;--card:#fff;--mut:#6b7280;--ac:#4f46e5;--acs:#eef2ff;--bd:#eceef2;--dg:#e11d48;--r:16px}
 [data-theme=dark]{--bg:#0b0d12;--fg:#f3f4f6;--card:#14171f;--mut:#8b93a3;--ac:#818cf8;--acs:#1c2033;--bd:#222633;--dg:#fb7185}
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html{overflow-x:hidden}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{overflow-x:clip}
 body{margin:0;font:15px/1.45 Inter,system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--fg);padding-top:env(safe-area-inset-top)}
 h1,h2{margin:0;letter-spacing:-.02em}h2{font-size:1.05rem;font-weight:600}h1{font-size:1.6rem}
 .muted{color:var(--mut);margin:0}.sp{flex:1}.grow{flex:1}
@@ -183,3 +183,10 @@ input[type=file]{max-width:100%}
 .donut .leg{align-self:center}
 /* bitácora con su propio scroll para que la página no sea interminable */
 #list{max-height:min(70vh,760px);overflow-y:auto;padding-right:4px;overscroll-behavior:contain;align-content:start}
+
+#list{max-height:none}
+.tbl-wrap.tall{max-height:none;overflow-x:auto;overflow-y:visible}
+.tbl-wrap.tall .tbl th{position:static}
+.tbl tr.int td{color:var(--mut)}
+#logMode .chip.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+[data-theme=dark] #logMode .chip.on{color:#0b0d12}
