@@ -132,6 +132,62 @@
     return wb;
   }
 
-  var api = { stats: stats, chartDays: chartDays, chartDonut: chartDonut, chartWeeks: chartWeeks, bossWorkbook: bossWorkbook, personalWorkbook: personalWorkbook, fh: fh };
+
+  /* ===== Tablas para ver en pantalla (mismas hojas que los Excel) ===== */
+  var DOW = ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'];
+  function dmy(d) { var p = d.split('-'); return p[2] + '/' + p[1] + '/' + p[0]; }
+  function sortRows(rows) { return rows.slice().sort(function (a, b) { return (a.entry_date + hm(a.start_time)) < (b.entry_date + hm(b.start_time)) ? -1 : 1; }); }
+  function hrs(m) { return (m / 60).toFixed(2).replace('.', ','); }
+  var FILES = {
+    boss: { label: 'Formato jefe (HH)', sheets: { resumen: 'resumen', detalle: 'detalle' } },
+    personal: { label: 'Personal', sheets: { detalle: 'Detalle', dia: 'Resumen por día', resumen: 'Resumen' } }
+  };
+  function table(file, sheet, rows, goalDay) {
+    var out = { cols: [], rows: [], total: null }, i;
+    if (file === 'boss') {
+      var imp = sortRows(rows.filter(function (e) { return e.imputable; })), tot = 0;
+      if (sheet === 'detalle') {
+        out.cols = ['fecha', 'cliente', 'proyecto', 'tarea', 'ticket', 'inicio', 'fin', 'total_hh'];
+        imp.forEach(function (e) { tot += e.duration_minutes; out.rows.push([dmy(e.entry_date), e.client || '', e.project, e.task, e.ticket || '', hm(e.start_time), hm(e.end_time), hrs(e.duration_minutes)]); });
+      } else {
+        out.cols = ['mes', 'inicio', 'cliente', 'proyecto', 'tarea', 'total_hh', 'ticket', 'estado_ticket'];
+        var agg = {}, ord = [];
+        imp.forEach(function (e) { var k = e.entry_date + '|' + e.project + '|' + e.task; if (!agg[k]) { agg[k] = { e: e, m: 0 }; ord.push(k); } agg[k].m += e.duration_minutes; });
+        ord.forEach(function (k) { var a = agg[k], e = a.e; tot += a.m; out.rows.push([e.entry_date.slice(0, 7), dmy(e.entry_date), e.client || '', e.project, e.task, hrs(a.m), e.ticket || '', e.ticket_status || '']); });
+      }
+      out.total = { label: 'Total imputable', value: hrs(tot) + ' h', col: out.cols.length - (sheet === 'detalle' ? 1 : 3) };
+      return out;
+    }
+    if (sheet === 'detalle') {
+      out.cols = ['Fecha', 'Cliente', 'Proyecto', 'Tarea', 'Ticket', 'Inicio', 'Fin', 'Horas', 'Tipo'];
+      var t = 0; sortRows(rows).forEach(function (e) { t += e.duration_minutes; out.rows.push([dmy(e.entry_date), e.client || '', e.project, e.task, e.ticket || '', hm(e.start_time), hm(e.end_time), hrs(e.duration_minutes), e.imputable ? 'Imputable' : 'Interna']); });
+      out.total = { label: 'Total (incluye internas)', value: hrs(t) + ' h', col: 7 };
+    } else if (sheet === 'dia') {
+      out.cols = ['Fecha', 'Imputable (h)', 'Interna (h)', 'Total (h)', 'Meta (h)', 'Dif. (h)', 'Estado'];
+      var S = stats(rows, goalDay), g = goalDay / 60;
+      S.days.forEach(function (d) { var a = S.byDay[d].imp / 60, n = S.byDay[d].int / 60, dt = new Date(d + 'T12:00:00'); out.rows.push([DOW[dt.getDay()] + ' ' + dmy(d), a.toFixed(2).replace('.', ','), n.toFixed(2).replace('.', ','), (a + n).toFixed(2).replace('.', ','), g.toFixed(2).replace('.', ','), (a - g >= 0 ? '+' : '') + (a - g).toFixed(2).replace('.', ','), a > g ? 'Sobre la meta' : (a >= g - 1 ? 'Cuadra' : 'Bajo la meta')]); });
+      out.total = { label: 'Total imputable', value: hrs(S.imp) + ' h', col: 1 };
+    } else {
+      out.cols = ['Proyecto', 'Tarea', 'Horas', '% del total'];
+      var pt = {}, po = [], T = 0;
+      rows.filter(function (e) { return e.imputable; }).forEach(function (e) { var k = e.project + '|' + e.task; if (!pt[k]) { pt[k] = { p: e.project, t: e.task, m: 0 }; po.push(k); } pt[k].m += e.duration_minutes; T += e.duration_minutes; });
+      po.sort(function (a, b) { return pt[a].p === pt[b].p ? pt[b].m - pt[a].m : (pt[a].p < pt[b].p ? -1 : 1); });
+      po.forEach(function (k) { out.rows.push([pt[k].p, pt[k].t, hrs(pt[k].m), (T ? Math.round(pt[k].m / T * 1000) / 10 : 0).toString().replace('.', ',') + '%']); });
+      out.total = { label: 'Total imputable', value: hrs(T) + ' h', col: 2 };
+    }
+    return out;
+  }
+  // Libro con una sola hoja (o todas) a partir de los mismos constructores
+  function workbook(X, file, sheet, rows, goalDay) {
+    var wb = file === 'boss' ? bossWorkbook(X, rows) : personalWorkbook(X, rows, goalDay);
+    if (sheet && sheet !== 'todas') {
+      var name = FILES[file].sheets[sheet];
+      wb.SheetNames.filter(function (n) { return n !== name; }).forEach(function (n) { delete wb.Sheets[n]; });
+      wb.SheetNames = [name];
+    }
+    return wb;
+  }
+
+  var api = { FILES: FILES, table: table, workbook: workbook, stats: stats, chartDays: chartDays, chartDonut: chartDonut, chartWeeks: chartWeeks, bossWorkbook: bossWorkbook, personalWorkbook: personalWorkbook, fh: fh };
   if (typeof module !== 'undefined' && module.exports) module.exports = api; else root.BHHReport = api;
 })(typeof window !== 'undefined' ? window : globalThis);

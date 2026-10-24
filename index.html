@@ -92,6 +92,17 @@
         <p class="muted">El del jefe lleva solo horas imputables, con las hojas «resumen» y «detalle».</p>
       </section>
     </div>
+    <div class="tab" id="tab-inf">
+      <h2>Informes</h2>
+      <div class="seg" id="pMode"><button data-m="day">Día</button><button data-m="week">Semana</button><button class="on" data-m="month">Mes</button></div>
+      <div class="daynav"><button class="ico" id="iPrev" aria-label="Anterior">‹</button><b id="iLabel" class="mlabel"></b><button class="ico" id="iNext" aria-label="Siguiente">›</button><button class="chip" id="iNow">Hoy</button></div>
+      <div class="row"><select id="iFile" aria-label="Tipo de archivo"></select><select id="iSheet" aria-label="Hoja"></select></div>
+      <div class="row"><select id="iProj" aria-label="Proyecto"></select></div>
+      <div class="tbl-wrap"><table id="iTable" class="tbl"></table></div>
+      <p id="iInfo" class="muted"></p>
+      <div class="row"><button class="btn primary grow" id="iXls">Exportar Excel</button><button class="btn grow" id="iMail">Enviar por correo</button></div>
+      <button class="btn" id="iAll">Descargar el archivo completo (todas las hojas)</button>
+    </div>
     <div class="tab" id="tab-proy">
       <h2>Proyectos</h2>
       <form id="pForm" class="panel stack">
@@ -113,6 +124,7 @@
   <nav class="tabs">
     <button class="on" data-tab="hoy"><i><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></i>Hoy</button>
     <button data-tab="panel"><i><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 20V10"/><path d="M12 20V4"/><path d="M19 20v-7"/></svg></i>Panel</button>
+    <button data-tab="inf"><i><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M4 10h16M10 4v16"/></svg></i>Informes</button>
     <button data-tab="proy"><i><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg></i>Proyectos</button>
     <button data-tab="datos"><i><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11"/><path d="m7 10 5-5 5 5"/><path d="M5 20h14"/></svg></i>Datos</button>
   </nav>
@@ -124,6 +136,7 @@
 <div id="statsM" class="modal" hidden><div class="mc"><h2>Tus horas</h2><div id="statsB" class="stack"></div><div class="row"><button class="btn grow" id="stCsv">Mes (CSV)</button><button class="btn primary grow" data-close="statsM">Cerrar</button></div></div></div>
 <div id="usersM" class="modal" hidden><div class="mc"><h2>Usuarios</h2><div id="usersB" class="stack"></div><button class="btn" data-close="usersM">Cerrar</button></div></div>
 <div id="inboxM" class="modal" hidden><div class="mc"><h2>Mensajes recibidos</h2><div id="inboxB" class="stack"></div><button class="btn" data-close="inboxM">Cerrar</button></div></div>
+<div id="mailM" class="modal" hidden><form id="mailF" class="mc"><h2>Enviar por correo</h2><input id="mTo" type="email" placeholder="Correo del destinatario" autocomplete="email"><input id="mSub" placeholder="Asunto"><textarea id="mBody" rows="7"></textarea><p class="muted" id="mTip"></p><div class="row"><button type="button" class="btn grow" data-close="mailM">Cancelar</button><button class="btn primary grow">Enviar</button></div></form></div>
 <div id="toast" role="status"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.min.js"></script>

@@ -358,12 +358,95 @@
     save(window.BHHReport.bossWorkbook(XLSX, rows), pm.getFullYear() + pad(pm.getMonth() + 1) + '_HH_Masisa_1_1.xlsx');
   };
 
+  // ===== Informes: filtros, tabla, Excel y correo =====
+  var pr = { mode: 'month', anchor: new Date() };
+  function isoD(d) { return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+  function periodRange() {
+    var a = new Date(pr.anchor.getFullYear(), pr.anchor.getMonth(), pr.anchor.getDate());
+    if (pr.mode === 'day') return { from: isoD(a), to: isoD(a), label: DIAS[a.getDay()] + ' ' + a.getDate() + ' de ' + MESES[a.getMonth()] };
+    if (pr.mode === 'week') { var s = new Date(a); s.setDate(a.getDate() - (a.getDay() + 6) % 7); var e = new Date(s); e.setDate(s.getDate() + 6); return { from: isoD(s), to: isoD(e), label: s.getDate() + ' ' + MESES[s.getMonth()].slice(0, 3) + ' – ' + e.getDate() + ' ' + MESES[e.getMonth()].slice(0, 3) + ' ' + e.getFullYear() }; }
+    var f = new Date(a.getFullYear(), a.getMonth(), 1), l = new Date(a.getFullYear(), a.getMonth() + 1, 0);
+    return { from: isoD(f), to: isoD(l), label: MESES[a.getMonth()] + ' ' + a.getFullYear() };
+  }
+  var DIAS = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
+  async function loadRange(from, to) {
+    var r = await sb.from('time_entries').select('entry_date,start_time,end_time,duration_minutes,task,ticket,ticket_status,imputable,projects(name,client_id)').gte('entry_date', from).lte('entry_date', to).order('entry_date').order('start_time');
+    if (r.error) { err(r.error); return []; }
+    return (r.data || []).map(function (e) {
+      var c = e.projects && st.clients.find(function (x) { return x.id === e.projects.client_id; });
+      return { entry_date: e.entry_date, start_time: e.start_time, end_time: e.end_time, duration_minutes: e.duration_minutes, task: e.task, ticket: e.ticket, ticket_status: e.ticket_status, imputable: e.imputable, project: e.projects ? e.projects.name : '—', client: c ? c.name : '' };
+    });
+  }
+  var infRows = [];
+  function infGoal() { return st.settings ? st.settings.max_imputable_day_minutes : 480; }
+  function fillInfSelects() {
+    var F = window.BHHReport.FILES;
+    if (!$('iFile').options.length) $('iFile').innerHTML = Object.keys(F).map(function (k) { return '<option value="' + k + '">' + F[k].label + '</option>'; }).join('');
+    var cur = $('iSheet').value, sh = F[$('iFile').value].sheets;
+    $('iSheet').innerHTML = Object.keys(sh).map(function (k) { return '<option value="' + k + '">Hoja: ' + sh[k] + '</option>'; }).join('');
+    if (sh[cur]) $('iSheet').value = cur;
+    if (!$('iProj').options.length) $('iProj').innerHTML = '<option value="">Todos los proyectos</option>' + st.projects.map(function (p) { return '<option value="' + esc(p.name) + '">' + esc(p.name) + '</option>'; }).join('');
+  }
+  function filtered() { var p = $('iProj').value; return p ? infRows.filter(function (e) { return e.project === p; }) : infRows; }
+  function drawTable() {
+    var T = window.BHHReport.table($('iFile').value, $('iSheet').value, filtered(), infGoal());
+    var h = '<thead><tr>' + T.cols.map(function (c) { return '<th>' + esc(c) + '</th>'; }).join('') + '</tr></thead><tbody>';
+    h += T.rows.map(function (r) { return '<tr>' + r.map(function (v, i) { return '<td class="' + (/^[+\-]?\d+(,\d+)?%?$/.test(v) ? 'num' : '') + '">' + esc(v) + '</td>'; }).join('') + '</tr>'; }).join('');
+    if (!T.rows.length) h += '<tr><td colspan="' + T.cols.length + '" class="muted">Sin datos en este período</td></tr>';
+    h += '</tbody>';
+    $('iTable').innerHTML = h;
+    $('iInfo').textContent = T.rows.length + ' filas' + (T.total ? ' · ' + T.total.label + ': ' + T.total.value : '');
+    return T;
+  }
+  async function renderInf() {
+    fillInfSelects();
+    var R = periodRange(); $('iLabel').textContent = R.label;
+    infRows = await loadRange(R.from, R.to); drawTable();
+  }
+  $('pMode').onclick = function (e) { var b = e.target.closest('button'); if (!b) return; pr.mode = b.dataset.m; document.querySelectorAll('#pMode button').forEach(function (x) { x.classList.toggle('on', x === b); }); renderInf(); };
+  function stepP(n) { var a = pr.anchor; pr.anchor = pr.mode === 'day' ? new Date(a.getFullYear(), a.getMonth(), a.getDate() + n) : pr.mode === 'week' ? new Date(a.getFullYear(), a.getMonth(), a.getDate() + 7 * n) : new Date(a.getFullYear(), a.getMonth() + n, 1); renderInf(); }
+  $('iPrev').onclick = function () { stepP(-1); }; $('iNext').onclick = function () { stepP(1); };
+  $('iNow').onclick = function () { pr.anchor = new Date(); renderInf(); };
+  $('iFile').onchange = function () { fillInfSelects(); drawTable(); };
+  $('iSheet').onchange = drawTable; $('iProj').onchange = drawTable;
+  function fileName(all) {
+    var R = periodRange(), f = $('iFile').value, per = R.from.replace(/-/g, '') + (R.from === R.to ? '' : '_' + R.to.replace(/-/g, ''));
+    return (f === 'boss' ? 'HH_Masisa_' : 'Horas_personal_') + per + (all ? '' : '_' + $('iSheet').value) + '.xlsx';
+  }
+  function infBook(all) { return window.BHHReport.workbook(XLSX, $('iFile').value, all ? 'todas' : $('iSheet').value, filtered(), infGoal()); }
+  function needData() { if (!window.XLSX) { toast('No cargó el generador de Excel'); return false; } if (!filtered().length) { toast('No hay horas en este período'); return false; } return true; }
+  $('iXls').onclick = function () { if (needData()) { var n = fileName(false); XLSX.writeFile(infBook(false), n); toast('Descargado: ' + n); } };
+  $('iAll').onclick = function () { if (needData()) { var n = fileName(true); XLSX.writeFile(infBook(true), n); toast('Descargado: ' + n); } };
+  $('iMail').onclick = function () {
+    if (!needData()) return;
+    var R = periodRange(), S = window.BHHReport.stats(filtered(), infGoal()), who = (st.profile && st.profile.full_name) || '';
+    var to = ''; try { to = localStorage.getItem('bhh-mailto') || ''; } catch (e) {}
+    $('mTo').value = to;
+    $('mSub').value = 'Reporte de horas ' + R.label + (who ? ' - ' + who : '');
+    $('mBody').value = 'Hola,\n\nTe envío el reporte de horas de ' + R.label + ': ' + window.BHHReport.fh(S.imp) + ' imputables en ' + S.days.length + ' días.\nAdjunto el archivo Excel.\n\nSaludos' + (who ? ',\n' + who : '') + '.';
+    $('mTip').textContent = navigator.canShare ? 'Se abrirá tu app de correo con el Excel adjunto.' : 'Se descargará el Excel y se abrirá tu correo: adjúntalo desde Descargas.';
+    $('mailM').hidden = false;
+  };
+  $('mailF').onsubmit = async function (e) {
+    e.preventDefault();
+    var to = $('mTo').value.trim(), sub = $('mSub').value, body = $('mBody').value, name = fileName(true);
+    try { localStorage.setItem('bhh-mailto', to); } catch (x) {}
+    var wb = infBook(true), out = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+    var file = new File([out], name, { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    $('mailM').hidden = true;
+    try { if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: sub, text: body }); return; } } catch (x) { if (x && x.name === 'AbortError') return; }
+    XLSX.writeFile(wb, name);
+    location.href = 'mailto:' + encodeURIComponent(to) + '?subject=' + encodeURIComponent(sub) + '&body=' + encodeURIComponent(body + '\n\n(Archivo descargado: ' + name + ')');
+    toast('Excel descargado: adjúntalo al correo', 6000);
+  };
+
   document.querySelector('.tabs').onclick = function (e) {
     var b = e.target.closest('button'); if (!b) return;
     document.querySelectorAll('.tabs button').forEach(function (x) { x.classList.toggle('on', x === b); });
     document.querySelectorAll('.tab').forEach(function (x) { x.classList.toggle('on', x.id === 'tab-' + b.dataset.tab); });
     scrollTo(0, 0);
     if (b.dataset.tab === 'panel') renderPanel();
+    if (b.dataset.tab === 'inf') renderInf();
   };
 
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(function () {});
