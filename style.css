@@ -1,4 +1,4 @@
-:root{--bg:#fafafa;--fg:#111827;--card:#fff;--mut:#6b7280;--ac:#4f46e5;--acs:#eef2ff;--bd:#eceef2;--dg:#e11d48;--r:16px}
+:root{--bg:#e9ecf3;--fg:#111827;--card:#fff;--mut:#5b6474;--ac:#4f46e5;--acs:#e6e9fb;--bd:#c9cfdb;--dg:#e11d48;--r:16px}
 [data-theme=dark]{--bg:#0b0d12;--fg:#f3f4f6;--card:#14171f;--mut:#8b93a3;--ac:#818cf8;--acs:#1c2033;--bd:#222633;--dg:#fb7185}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{overflow-x:clip}
 body{margin:0;font:15px/1.45 Inter,system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--fg);padding-top:env(safe-area-inset-top)}
@@ -225,3 +225,14 @@ textarea{min-height:110px;line-height:1.45}
 #tab-datos>h2,#tab-datos>.wide,#tab-datos>footer{grid-column:1/-1}
 input[type=file]::file-selector-button{margin-right:12px;padding:8px 14px;border:0;border-radius:10px;background:var(--acs);color:var(--ac);font:inherit;font-weight:600;cursor:pointer}
 input[type=file]{padding:6px 10px;color:var(--mut)}
+
+/* modo claro: recuadros bien definidos */
+:root:not([data-theme=dark]) .panel,:root:not([data-theme=dark]) .kpi,:root:not([data-theme=dark]) .tbl-wrap,:root:not([data-theme=dark]) details.panel{box-shadow:0 1px 2px rgba(17,24,39,.08),0 4px 14px rgba(17,24,39,.06)}
+:root:not([data-theme=dark]) input,:root:not([data-theme=dark]) select,:root:not([data-theme=dark]) textarea{background:#f4f6fa;border-color:#b9c1d0}
+:root:not([data-theme=dark]) input:focus,:root:not([data-theme=dark]) select:focus,:root:not([data-theme=dark]) textarea:focus{background:#fff;border-color:var(--ac)}
+:root:not([data-theme=dark]) .btn:not(.primary):not(.danger){border-color:#b9c1d0;box-shadow:0 1px 2px rgba(17,24,39,.08)}
+:root:not([data-theme=dark]) .daybtn{background:#f4f6fa;border-color:#b9c1d0}
+:root:not([data-theme=dark]) .tabs{border-bottom:1px solid var(--bd)}
+:root:not([data-theme=dark]) .cd.l1{background:rgba(16,185,129,.2)}:root:not([data-theme=dark]) .cd.l2{background:rgba(16,185,129,.45)}:root:not([data-theme=dark]) .cd.l3{background:#10b981;color:#fff}
+:root:not([data-theme=dark]) .tbl tbody tr:nth-child(even){background:#f1f3f9}
+:root:not([data-theme=dark]) .cd.sel{background:var(--ac);color:#fff}
