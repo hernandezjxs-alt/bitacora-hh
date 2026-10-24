@@ -89,16 +89,22 @@
         </section>
         <details class="panel" id="manualD" open>
           <summary>Agregar entrada</summary>
-          <form id="mForm" class="stack">
-            <select id="mProj" required></select>
-            <textarea id="mTask" rows="4" placeholder="Describe la tarea" maxlength="300" required></textarea>
-            <div class="row"><input type="time" id="mStart" step="900" required><input type="time" id="mEnd" step="900" required></div>
-            <div class="row"><input id="mTicket" placeholder="Ticket (opcional)" maxlength="60"><label class="chk"><input type="checkbox" id="mImp" checked> Imputable</label></div>
-            <div class="row"><button class="btn primary fit">Guardar</button><button type="button" class="btn fit" id="repeatBtn">Repetir última</button></div>
+          <form id="mForm" class="eform">
+            <label class="lbl full">Proyecto<select id="mProj" required></select></label>
+            <label class="lbl full">Tarea<textarea id="mTask" rows="4" placeholder="Describe la tarea" maxlength="300" required></textarea></label>
+            <label class="lbl">Inicio<input type="time" id="mStart" step="900" required></label>
+            <label class="lbl">Fin<input type="time" id="mEnd" step="900" required></label>
+            <label class="lbl">Ticket (opcional)<input id="mTicket" placeholder="DLM-…" maxlength="60"></label>
+            <label class="chk imp"><input type="checkbox" id="mImp" checked> Imputable</label>
+            <div class="btns full">
+              <button class="btn primary">Guardar</button>
+              <button type="button" class="btn" id="repeatBtn">Repetir última</button>
+              <button type="button" class="btn" id="dailyBtn">+ Daily</button>
+            </div>
           </form>
         </details>
       </div>
-      <div class="row head"><h2>Bitácora</h2><span class="sp"></span><button class="chip" id="dailyBtn">+ Daily</button></div>
+      <div class="row head"><h2>Bitácora</h2></div>
       <div class="row wrap" id="logMode"><button class="chip" data-m="day">Día</button><button class="chip" data-m="week">Semana</button><button class="chip on" data-m="month">Mes</button></div>
       <p class="muted" id="logInfo"></p>
       <div class="tbl-wrap tall"><table class="tbl" id="logT"></table></div>

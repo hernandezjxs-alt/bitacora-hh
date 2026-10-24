@@ -195,3 +195,12 @@ textarea{min-height:110px;line-height:1.45}
 #tTask,#mTask{min-height:120px}
 .lbl{display:grid;gap:4px;font-size:.78rem;color:var(--mut);flex:1 1 120px;min-width:0}
 .lbl input{font-size:16px}
+
+.eform{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:end}
+.eform .full{grid-column:1/-1}
+.eform .imp{align-self:end;min-height:46px}
+.eform .lbl{flex:none}
+.btns{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px}
+.btns .btn{width:100%;min-height:46px;padding:10px 12px}
+.eform input[type=time]{min-width:0}
+@media (max-width:420px){.eform{grid-template-columns:1fr}}
