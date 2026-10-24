@@ -388,9 +388,26 @@
     if (!$('iProj').options.length) $('iProj').innerHTML = '<option value="">Todos los proyectos</option>' + st.projects.map(function (p) { return '<option value="' + esc(p.name) + '">' + esc(p.name) + '</option>'; }).join('');
   }
   function filtered() { var p = $('iProj').value; return p ? infRows.filter(function (e) { return e.project === p; }) : infRows; }
+  var sortS = { col: -1, dir: 1 };
+  function sortKey(v) {
+    v = String(v == null ? '' : v);
+    var m = v.match(/^(\d{2})\/(\d{2})\/(\d{4})$/); if (m) return +(m[3] + m[2] + m[1]);
+    m = v.match(/^[a-zá-ú]{3} (\d{2})\/(\d{2})\/(\d{4})$/i); if (m) return +(m[3] + m[2] + m[1]);
+    m = v.match(/^(\d{2}):(\d{2})$/); if (m) return +m[1] * 60 + +m[2];
+    if (/^[+\-]?\d+(,\d+)?%?$/.test(v)) return parseFloat(v.replace(',', '.'));
+    return v.toLowerCase();
+  }
+  $('iTable').onclick = function (e) {
+    var th = e.target.closest('th[data-c]'); if (!th) return;
+    var c = +th.dataset.c;
+    if (sortS.col === c) { if (sortS.dir === 1) sortS.dir = -1; else sortS.col = -1; } else { sortS.col = c; sortS.dir = 1; }
+    drawTable();
+  };
   function drawTable() {
     var T = window.BHHReport.table($('iFile').value, $('iSheet').value, filtered(), infGoal());
-    var h = '<thead><tr>' + T.cols.map(function (c) { return '<th>' + esc(c) + '</th>'; }).join('') + '</tr></thead><tbody>';
+    if (sortS.col >= T.cols.length) sortS.col = -1;
+    if (sortS.col >= 0) { var ci = sortS.col, dr = sortS.dir; T.rows.sort(function (x, y) { var a = sortKey(x[ci]), b = sortKey(y[ci]), r = (typeof a === 'number' && typeof b === 'number') ? a - b : String(a).localeCompare(String(b), 'es', { numeric: true }); return r * dr; }); }
+    var h = '<thead><tr>' + T.cols.map(function (c, i) { var on = sortS.col === i; return '<th data-c="' + i + '" class="srt" aria-sort="' + (on ? (sortS.dir > 0 ? 'ascending' : 'descending') : 'none') + '">' + esc(c) + '<span>' + (on ? (sortS.dir > 0 ? ' ▲' : ' ▼') : ' ↕') + '</span></th>'; }).join('') + '</tr></thead><tbody>';
     h += T.rows.map(function (r) { return '<tr>' + r.map(function (v, i) { return '<td class="' + (/^[+\-]?\d+(,\d+)?%?$/.test(v) ? 'num' : '') + '">' + esc(v) + '</td>'; }).join('') + '</tr>'; }).join('');
     if (!T.rows.length) h += '<tr><td colspan="' + T.cols.length + '" class="muted">Sin datos en este período</td></tr>';
     h += '</tbody>';
@@ -407,8 +424,8 @@
   function stepP(n) { var a = pr.anchor; pr.anchor = pr.mode === 'day' ? new Date(a.getFullYear(), a.getMonth(), a.getDate() + n) : pr.mode === 'week' ? new Date(a.getFullYear(), a.getMonth(), a.getDate() + 7 * n) : new Date(a.getFullYear(), a.getMonth() + n, 1); renderInf(); }
   $('iPrev').onclick = function () { stepP(-1); }; $('iNext').onclick = function () { stepP(1); };
   $('iNow').onclick = function () { pr.anchor = new Date(); renderInf(); };
-  $('iFile').onchange = function () { fillInfSelects(); drawTable(); };
-  $('iSheet').onchange = drawTable; $('iProj').onchange = drawTable;
+  $('iFile').onchange = function () { sortS.col = -1; fillInfSelects(); drawTable(); };
+  $('iSheet').onchange = function () { sortS.col = -1; drawTable(); }; $('iProj').onchange = drawTable;
   function fileName(all) {
     var R = periodRange(), f = $('iFile').value, per = R.from.replace(/-/g, '') + (R.from === R.to ? '' : '_' + R.to.replace(/-/g, ''));
     return (f === 'boss' ? 'HH_Masisa_' : 'Horas_personal_') + per + (all ? '' : '_' + $('iSheet').value) + '.xlsx';

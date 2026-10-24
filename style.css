@@ -97,3 +97,4 @@ header .contact-open{color:var(--i6)!important;opacity:1}
 .tbl tbody tr:nth-child(even){background:var(--acs)}.tbl td.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
 .tabs button{font-size:.66rem;padding:6px 2px}.tabs{gap:0;padding-left:6px;padding-right:6px}
 .tabs button[data-tab=inf] i{color:var(--i5)}
+.tbl th.srt{cursor:pointer;user-select:none}.tbl th.srt span{opacity:.7;font-size:.7rem}
