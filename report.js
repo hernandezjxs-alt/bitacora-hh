@@ -82,12 +82,27 @@
     return ws;
   }
 
+  // Hojas del jefe: sin encabezado de color, fuente Aptos Narrow, filtro y filas alternadas (como el archivo de septiembre)
+  var BAND = { font: { name: 'Aptos Narrow', sz: 11 }, fill: { patternType: 'solid', fgColor: { rgb: 'DDEBF7' } } };
+  var PLAIN = { font: { name: 'Aptos Narrow', sz: 11 } };
+  function bossSheet(X, rows, widths) {
+    var ws = X.utils.aoa_to_sheet(rows);
+    ws['!cols'] = widths.map(function (w) { return { wch: w }; });
+    for (var r = 0; r < rows.length; r++) for (var c = 0; c < rows[0].length; c++) {
+      var a = X.utils.encode_cell({ r: r, c: c });
+      if (!ws[a]) ws[a] = { t: 's', v: '' };
+      ws[a].s = (r > 0 && r % 2 === 1) ? BAND : PLAIN;
+    }
+    ws['!autofilter'] = { ref: X.utils.encode_range({ s: { r: 0, c: 0 }, e: { r: rows.length - 1, c: rows[0].length - 1 } }) };
+    return ws;
+  }
+
   // Formato de tu jefe: hojas "resumen" y "detalle" (solo horas imputables)
   function bossWorkbook(X, rows, ym) {
     var imp = rows.filter(function (e) { return e.imputable; }).sort(function (a, b) { return (a.entry_date + hm(a.start_time)) < (b.entry_date + hm(b.start_time)) ? -1 : 1; });
     var det = [['fecha', 'cliente', 'proyecto', 'tarea', 'concat', 'ticket', 'inicio', 'fin', 'total_hh']];
     imp.forEach(function (e) {
-      det.push([dateCell(e.entry_date, 'mm-dd-yy'), e.client || '', e.project, e.task, e.project + ' | ' + e.task, e.ticket || '', timeCell(e.start_time, 'h:mm:ss'), timeCell(e.end_time, 'h:mm:ss'), durCell(e.duration_minutes)]);
+      det.push([dateCell(e.entry_date, 'm/d/yy'), e.client || '', e.project, e.task, e.project + ' | ' + e.task, e.ticket || '', timeCell(e.start_time, 'h:mm:ss'), timeCell(e.end_time, 'h:mm:ss'), durCell(e.duration_minutes)]);
     });
     var agg = {}, order = [];
     imp.forEach(function (e) {
@@ -98,11 +113,11 @@
     var res = [['mes', 'inicio', 'cliente', 'proyecto', 'tarea', 'total_hh', 'concat', 'ticket', 'estado_ticket']];
     order.forEach(function (k) {
       var a = agg[k], e = a.e;
-      res.push([e.entry_date.slice(0, 7), dateCell(e.entry_date, 'mm-dd-yy'), e.client || '', e.project, e.task, durCell(a.min), e.project + ' | ' + e.task, a.ticket, a.st]);
+      res.push([e.entry_date.slice(0, 7), dateCell(e.entry_date, 'm/d/yy'), e.client || '', e.project, e.task, durCell(a.min), e.project + ' | ' + e.task, a.ticket, a.st]);
     });
     var wb = X.utils.book_new();
-    X.utils.book_append_sheet(wb, sheet(X, res, [10, 12, 14, 26, 60, 11, 70, 12, 14], HEAD), 'resumen');
-    X.utils.book_append_sheet(wb, sheet(X, det, [12, 14, 26, 60, 70, 12, 10, 10, 11], HEAD), 'detalle');
+    X.utils.book_append_sheet(wb, bossSheet(X, res, [7.5, 10.1, 8.9, 18.6, 67, 9.9, 86.6, 12.5, 14.4]), 'resumen');
+    X.utils.book_append_sheet(wb, bossSheet(X, det, [12, 13, 18.6, 62, 86.6, 16, 14, 14, 18]), 'detalle');
     return wb;
   }
 
