@@ -105,7 +105,7 @@
     var last = st.entries[st.entries.length - 1];
     if (last) { $('mStart').value = hm(last.end_time); }
   }
-  var logMode = 'month', logSort = { col: 0, dir: -1 }, logRows = [];
+  var logMode = 'month', logSort = { col: 0, dir: -1 }, logRows = [], logPage = 0, logPer = 25;
   var LCOLS = ['Fecha', 'Inicio', 'Fin', 'Proyecto', 'Tarea', 'Ticket', 'Horas', 'Tipo'];
   function logRange() {
     var d = new Date(st.day + 'T12:00:00'), a, b;
@@ -119,6 +119,7 @@
     var r = await sb.from('time_entries').select('id,entry_date,start_time,end_time,task,ticket,duration_minutes,imputable,projects(name)').gte('entry_date', rg[0]).lte('entry_date', rg[1]).order('entry_date').order('start_time').limit(2000);
     if (r.error) return err(r.error);
     logRows = r.data || [];
+    logPage = 0;
     drawLog();
   }
   function drawLog() {
@@ -132,18 +133,25 @@
     var imp = 0, inn = 0;
     rows.forEach(function (e) { if (e.imputable) imp += e.duration_minutes; else inn += e.duration_minutes; });
     var h = '<thead><tr>' + LCOLS.map(function (n, i) { var on = logSort.col === i; return '<th data-c="' + i + '" class="srt" aria-sort="' + (on ? (dr > 0 ? 'ascending' : 'descending') : 'none') + '">' + n + '<span>' + (on ? (dr > 0 ? ' ▲' : ' ▼') : ' ↕') + '</span></th>'; }).join('') + '<th></th></tr></thead><tbody>';
-    h += rows.map(function (e) {
+    var pages = Math.max(1, Math.ceil(rows.length / logPer)); if (logPage >= pages) logPage = pages - 1;
+    var view = rows.slice(logPage * logPer, logPage * logPer + logPer);
+    h += view.map(function (e) {
       var d = e.entry_date.split('-');
       return '<tr class="' + (e.imputable ? '' : 'int') + '"><td>' + d[2] + '/' + d[1] + '/' + d[0] + '</td><td>' + hm(e.start_time) + '</td><td>' + hm(e.end_time) + '</td><td>' + esc(e.projects ? e.projects.name : '') + '</td><td>' + esc(e.task) + '</td><td>' + esc(e.ticket || '') + '</td><td class="num">' + fmtH(e.duration_minutes) + '</td><td>' + (e.imputable ? 'Imputable' : 'Interna') + '</td><td><button class="ico" data-del="' + e.id + '" aria-label="Eliminar" title="Eliminar">×</button></td></tr>';
     }).join('') || '<tr><td colspan="9" class="muted">Sin entradas en este período</td></tr>';
     $('logT').innerHTML = h + '</tbody>';
+    var pg = $('logPager');
+    if (rows.length <= 10) pg.innerHTML = '';
+    else pg.innerHTML = '<span class="muted">' + (logPage * logPer + 1) + '–' + Math.min(rows.length, (logPage + 1) * logPer) + ' de ' + rows.length + '</span>' +
+      '<button class="chip" data-p="-1"' + (logPage === 0 ? ' disabled' : '') + '>‹ Anterior</button><span>Pág. ' + (logPage + 1) + '/' + pages + '</span><button class="chip" data-p="1"' + (logPage >= pages - 1 ? ' disabled' : '') + '>Siguiente ›</button>' +
+      '<label class="muted">Filas <select id="logPer">' + [10, 25, 50, 100].map(function (n) { return '<option' + (n === logPer ? ' selected' : '') + '>' + n + '</option>'; }).join('') + '</select></label>';
     var rg = logRange();
     $('logInfo').textContent = rows.length + ' entradas · ' + fmtH(imp) + ' imputables · ' + fmtH(inn) + ' internas · ' + rg[0].split('-').reverse().join('/') + (rg[0] === rg[1] ? '' : ' – ' + rg[1].split('-').reverse().join('/'));
     document.querySelectorAll('#logMode button').forEach(function (b) { b.classList.toggle('on', b.getAttribute('data-m') === logMode); });
   }
   $('logT').onclick = async function (e) {
     var th = e.target.closest('th.srt');
-    if (th) { var c = +th.getAttribute('data-c'); if (logSort.col === c) logSort.dir = -logSort.dir; else { logSort.col = c; logSort.dir = c === 6 ? -1 : 1; } drawLog(); return; }
+    if (th) { var c = +th.getAttribute('data-c'); if (logSort.col === c) logSort.dir = -logSort.dir; else { logSort.col = c; logSort.dir = c === 6 ? -1 : 1; } logPage = 0; drawLog(); return; }
     var id = e.target.getAttribute('data-del');
     if (!id || !(await askConfirm('Eliminar entrada', '¿Seguro que quieres eliminarla?', 'Eliminar'))) return;
     var r = await sb.from('time_entries').delete().eq('id', id);
@@ -151,6 +159,8 @@
     loadDay();
   };
   $('logMode').onclick = function (e) { var m = e.target.getAttribute('data-m'); if (m) { logMode = m; loadLog(); } };
+  $('logPager').onclick = function (e) { var b = e.target.closest('button[data-p]'); if (b && !b.disabled) { logPage += +b.getAttribute('data-p'); drawLog(); } };
+  $('logPager').onchange = function (e) { if (e.target.id === 'logPer') { logPer = +e.target.value; logPage = 0; drawLog(); } };
   var MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'], DIAS = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
   function dayLabel(d) { var x = new Date(d + 'T12:00:00'); return DIAS[x.getDay()].slice(0, 3) + ' ' + x.getDate() + ' ' + MESES[x.getMonth()].slice(0, 3) + ' ' + x.getFullYear(); }
   function go(d) { st.day = d; $('dayPick').value = d; $('dayTxt').textContent = dayLabel(d); loadDay(); }
